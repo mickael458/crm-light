@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local Stripe CLI
+stripe.exe
+.stripe-cli-download/
