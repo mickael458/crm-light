@@ -60,7 +60,7 @@ export function OnboardingWizard({ userId }: OnboardingWizardProps) {
   const [step, setStep] = useState(0);
   const [activity, setActivity] = useState<OnboardingActivity>("consultant");
   const [cycle, setCycle] = useState<OnboardingCycle>("court");
-  const [delay, setDelay] = useState<(typeof delayOptions)[number]>(7);
+  const [delay, setDelay] = useState<number>(7);
   const [channels, setChannels] = useState<string[]>(["email"]);
   const [summary, setSummary] = useState<OnboardingSummary>("matin");
   const [goal, setGoal] = useState<OnboardingGoal>("relance");
@@ -123,7 +123,24 @@ export function OnboardingWizard({ userId }: OnboardingWizardProps) {
       {step === 1 ? <ChoiceGrid items={cycles} value={cycle} onChange={setCycle} /> : null}
       {step === 2 ? (
         <div className="space-y-6">
-          <OptionGroup title="Délai avant relance">{delayOptions.map((option) => <Pill key={option} active={delay === option} onClick={() => setDelay(option)}>{option}j</Pill>)}</OptionGroup>
+          <OptionGroup title="Délai avant relance">
+            {delayOptions.map((option) => <Pill key={option} active={delay === option} onClick={() => setDelay(option)}>{option}j</Pill>)}
+            <label className="flex items-center gap-2 rounded-full border border-zinc-300 bg-white px-3 py-1.5 text-sm text-zinc-700">
+              <span>Autre</span>
+              <input
+                type="number"
+                min={1}
+                value={delay}
+                onChange={(event) => {
+                  const next = Math.floor(Number(event.target.value));
+                  if (Number.isFinite(next) && next >= 1) setDelay(next);
+                }}
+                className="w-16 rounded-md border border-zinc-200 px-2 py-1 text-sm text-zinc-950 outline-none focus:border-zinc-900"
+                aria-label="Délai personnalisé en jours"
+              />
+              <span>jours</span>
+            </label>
+          </OptionGroup>
           <OptionGroup title="Canal préféré">{channelOptions.map((option) => <Pill key={option.value} active={channels.includes(option.value)} onClick={() => toggleChannel(option.value)}>{option.label}</Pill>)}</OptionGroup>
           <OptionGroup title="Résumé">{summaryOptions.map((option) => <Pill key={option.value} active={summary === option.value} onClick={() => setSummary(option.value)}>{option.label}</Pill>)}</OptionGroup>
         </div>

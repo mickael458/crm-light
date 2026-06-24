@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   subscription_id TEXT,
   onboarding_activity TEXT CHECK (onboarding_activity IN ('consultant', 'coach', 'freelance', 'artisan', 'autre')),
   onboarding_cycle TEXT CHECK (onboarding_cycle IN ('court', 'long', 'devis', 'appel')),
-  onboarding_delay INTEGER CHECK (onboarding_delay IN (3, 5, 7, 14)),
+  onboarding_delay INTEGER CHECK (onboarding_delay IS NULL OR onboarding_delay > 0),
   onboarding_goal TEXT CHECK (onboarding_goal IN ('relance', 'devis', 'pipeline')),
   onboarding_channels TEXT[],
   onboarding_summary TEXT CHECK (onboarding_summary IN ('matin', 'hebdo', 'jamais')),
@@ -40,11 +40,15 @@ ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS onboarding_activity TEXT CHECK (onboarding_activity IN ('consultant', 'coach', 'freelance', 'artisan', 'autre'));
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS onboarding_cycle TEXT CHECK (onboarding_cycle IN ('court', 'long', 'devis', 'appel'));
-ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS onboarding_delay INTEGER CHECK (onboarding_delay IN (3, 5, 7, 14));
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS onboarding_delay INTEGER;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS onboarding_goal TEXT CHECK (onboarding_goal IN ('relance', 'devis', 'pipeline'));
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS onboarding_channels TEXT[];
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS onboarding_summary TEXT CHECK (onboarding_summary IN ('matin', 'hebdo', 'jamais'));
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS onboarding_done BOOLEAN DEFAULT FALSE;
+
+-- Délai de relance : libre (en jours), seulement > 0. Remplace l'ancienne contrainte IN (3,5,7,14).
+ALTER TABLE public.profiles DROP CONSTRAINT IF EXISTS profiles_onboarding_delay_check;
+ALTER TABLE public.profiles ADD CONSTRAINT profiles_onboarding_delay_check CHECK (onboarding_delay IS NULL OR onboarding_delay > 0);
 ALTER TABLE public.deals ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
 UPDATE public.deals SET updated_at = COALESCE(updated_at, created_at, NOW()) WHERE updated_at IS NULL;
 
