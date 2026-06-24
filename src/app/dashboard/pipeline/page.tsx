@@ -26,10 +26,10 @@ export default async function PipelinePage() {
               Pipeline
             </p>
             <h1 className="mt-2 text-3xl font-semibold text-zinc-950">
-              Opportunites commerciales
+              Opportunités commerciales
             </h1>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-600">
-              Deplace les deals entre les colonnes pour garder ton suivi a jour.
+              Déplace les deals entre les colonnes pour garder ton suivi à jour.
             </p>
           </div>
           <div className="flex flex-col gap-2 sm:flex-row">

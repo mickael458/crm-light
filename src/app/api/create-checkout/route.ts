@@ -1,8 +1,12 @@
-﻿import { NextResponse } from "next/server";
+﻿import { NextResponse, type NextRequest } from "next/server";
 import { getStripe } from "@/lib/stripe";
 import { createServerSupabase } from "@/lib/supabase-server";
 
-export async function POST() {
+type CheckoutRequestBody = {
+  user_id?: string;
+};
+
+export async function POST(request: NextRequest) {
   try {
     const appUrl = process.env.NEXT_PUBLIC_URL?.replace(/\/$/, "");
 
@@ -22,6 +26,7 @@ export async function POST() {
       );
     }
 
+    const body = (await request.json().catch(() => ({}))) as CheckoutRequestBody;
     const {
       data: { user },
       error: userError,
@@ -31,6 +36,13 @@ export async function POST() {
       return NextResponse.json(
         { error: "Connecte-toi avant de choisir un abonnement." },
         { status: 401 },
+      );
+    }
+
+    if (body.user_id !== user.id) {
+      return NextResponse.json(
+        { error: "Utilisateur invalide pour cette session de paiement." },
+        { status: 403 },
       );
     }
 

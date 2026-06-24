@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import { useState } from "react";
+import { createClientSupabase } from "@/lib/supabase";
 
 export function PricingCheckoutButton() {
   const [error, setError] = useState<string | null>(null);
@@ -11,8 +12,22 @@ export function PricingCheckoutButton() {
     setIsLoading(true);
 
     try {
+      const supabase = createClientSupabase();
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
+
+      if (userError || !user) {
+        throw new Error("Connecte-toi avant de choisir un abonnement.");
+      }
+
       const response = await fetch("/api/create-checkout", {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ user_id: user.id }),
       });
       const payload = (await response.json()) as { url?: string; error?: string };
 

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { FormEvent, useState } from "react";
 import type { Contact, DealStage, DealWithContact } from "@/lib/database.types";
@@ -39,7 +39,7 @@ export function AddDealModal({
     setIsSubmitting(false);
 
     if (result.error || !result.deal) {
-      setError(result.error ?? "Impossible de creer le deal.");
+      setError(result.error ?? "Impossible de créer le deal.");
       return;
     }
 
@@ -57,7 +57,7 @@ export function AddDealModal({
           <div>
             <h2 className="text-xl font-semibold text-zinc-950">Ajouter un deal</h2>
             <p className="mt-1 text-sm text-zinc-600">
-              Cree une opportunite dans ton pipeline commercial.
+              Crée une opportunité dans ton pipeline commercial.
             </p>
           </div>
           <button
@@ -144,10 +144,11 @@ export function AddDealModal({
             disabled={isSubmitting}
             className="h-11 rounded-md bg-zinc-950 px-4 text-sm font-medium text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:bg-zinc-400"
           >
-            {isSubmitting ? "Creation..." : "Ajouter"}
+            {isSubmitting ? "Création..." : "Ajouter"}
           </button>
         </div>
       </form>
     </div>
   );
 }
+

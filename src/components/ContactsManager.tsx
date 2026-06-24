@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { FormEvent, useState } from "react";
 import type { Contact, ContactStatus } from "@/lib/database.types";
@@ -41,7 +41,7 @@ export function ContactsManager({ initialContacts }: ContactsManagerProps) {
     setIsSubmitting(false);
 
     if (result.error || !result.contact) {
-      setError(result.error ?? "Impossible d'ajouter le contact.");
+      setError(result.error ?? "Impossible d’ajouter le contact.");
       return;
     }
 
@@ -61,7 +61,7 @@ export function ContactsManager({ initialContacts }: ContactsManagerProps) {
       >
         <h2 className="text-lg font-semibold text-zinc-950">Ajouter un contact</h2>
         <p className="mt-1 text-sm leading-6 text-zinc-600">
-          Garde les informations utiles pour qualifier tes opportunites.
+          Garde les informations utiles pour qualifier tes opportunités.
         </p>
 
         <div className="mt-5 grid gap-4">
@@ -97,7 +97,7 @@ export function ContactsManager({ initialContacts }: ContactsManagerProps) {
           </label>
 
           <label className="space-y-2">
-            <span className="text-sm font-medium text-zinc-800">Telephone</span>
+            <span className="text-sm font-medium text-zinc-800">Téléphone</span>
             <input
               value={phone}
               onChange={(event) => setPhone(event.target.value)}
@@ -152,7 +152,7 @@ export function ContactsManager({ initialContacts }: ContactsManagerProps) {
                 <th className="px-5 py-3">Nom</th>
                 <th className="px-5 py-3">Entreprise</th>
                 <th className="px-5 py-3">Email</th>
-                <th className="px-5 py-3">Telephone</th>
+                <th className="px-5 py-3">Téléphone</th>
                 <th className="px-5 py-3">Statut</th>
                 <th className="px-5 py-3">Cree le</th>
               </tr>
@@ -202,3 +202,4 @@ export function ContactsManager({ initialContacts }: ContactsManagerProps) {
     </div>
   );
 }
+

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -48,7 +48,7 @@ export function AuthForm({ mode }: AuthFormProps) {
       return;
     }
 
-    setSuccess("Compte cree. Verifie ton email si Supabase demande une confirmation, puis connecte-toi.");
+    setSuccess("Compte créé. Vérifie ton email si Supabase demande une confirmation, puis connecte-toi.");
   }
 
   return (
@@ -62,8 +62,8 @@ export function AuthForm({ mode }: AuthFormProps) {
         </h1>
         <p className="text-sm leading-6 text-zinc-600">
           {isLogin
-            ? "Accede a ton espace CRM Light."
-            : "Cree ton compte pour commencer a suivre tes prospects."}
+            ? "Accède à ton espace CRM Light."
+            : "Crée ton compte pour commencer à suivre tes prospects."}
         </p>
       </div>
 
@@ -87,7 +87,7 @@ export function AuthForm({ mode }: AuthFormProps) {
           onChange={(event) => setPassword(event.target.value)}
           autoComplete={isLogin ? "current-password" : "new-password"}
           className="h-11 w-full rounded-md border border-zinc-300 px-3 text-sm text-zinc-950 outline-none transition focus:border-zinc-900 focus:ring-2 focus:ring-zinc-200"
-          placeholder="Minimum 6 caracteres"
+          placeholder="Minimum 6 caractères"
         />
       </label>
 
@@ -110,18 +110,20 @@ export function AuthForm({ mode }: AuthFormProps) {
           ? "Traitement..."
           : isLogin
             ? "Se connecter"
-            : "Creer mon compte"}
+            : "Créer mon compte"}
       </button>
 
       <p className="text-center text-sm text-zinc-600">
-        {isLogin ? "Pas encore de compte ?" : "Deja un compte ?"} {" "}
+        {isLogin ? "Pas encore de compte ?" : "Déjà un compte ?"} {" "}
         <Link
           href={isLogin ? "/register" : "/login"}
           className="font-medium text-zinc-950 underline-offset-4 hover:underline"
         >
-          {isLogin ? "S'inscrire" : "Se connecter"}
+          {isLogin ? "S’inscrire" : "Se connecter"}
         </Link>
       </p>
     </form>
   );
 }
+
+
