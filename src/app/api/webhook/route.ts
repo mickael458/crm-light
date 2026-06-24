@@ -1,4 +1,4 @@
-﻿import { headers } from "next/headers";
+import { headers } from "next/headers";
 import { type NextRequest } from "next/server";
 import Stripe from "stripe";
 import { createSupabaseAdmin } from "@/lib/supabase-admin";
@@ -40,7 +40,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log("Webhook reçu : " + event.type);
 
     if (event.type === "checkout.session.completed") {
       const session = event.data.object;
@@ -51,18 +50,10 @@ export async function POST(request: NextRequest) {
           : session.subscription?.id ?? null;
 
       if (!userId) {
-        console.error(
-          "Webhook Stripe : user_id manquant dans session.metadata",
-          {
-            sessionId: session.id,
-            metadata: session.metadata,
-            subscription: session.subscription,
-          },
-        );
+        console.error("Webhook Stripe : user_id manquant dans session.metadata.");
         return new Response("OK", { status: 200 });
       }
 
-      console.log("Mise à jour profil pour user_id : " + userId);
 
       const supabaseAdmin = createSupabaseAdmin();
       const { error } = await supabaseAdmin

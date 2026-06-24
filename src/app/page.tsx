@@ -1,23 +1,16 @@
-﻿"use client";
+"use client";
 
-import { useState } from "react";
 import Link from "next/link";
 
 export default function Home() {
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
-
-  function toggleFaq(i: number) {
-    setOpenFaq(openFaq === i ? null : i);
-  }
-
   const faqs = [
     {
       q: "Est-ce vraiment sans carte bancaire pour l'essai ?",
       a: "Oui, aucune carte n'est demandée pendant les 14 jours d'essai. Vous entrez votre moyen de paiement uniquement si vous choisissez de continuer.",
     },
     {
-      q: "Mes données sont-elles vraiment hébergées en France ?",
-      a: "Oui, nous utilisons des serveurs OVH basés à Gravelines et Roubaix. Vos données ne quittent jamais l'Union Européenne, conformément au RGPD.",
+      q: "Mes données sont-elles hébergées en Europe ?",
+      a: "Oui, les données sont hébergées en Europe avec des services compatibles RGPD.",
     },
     {
       q: "Puis-je importer mes contacts existants ?",
@@ -76,6 +69,12 @@ export default function Home() {
         .lp-mockup-dot { width: 10px; height: 10px; border-radius: 50%; }
         .lp-mockup-url { margin-left: 12px; flex: 1; background: #fff; border-radius: 4px; padding: 3px 10px; font-size: 11px; color: var(--muted); max-width: 320px; }
         .lp-mockup-body { display: flex; height: 440px; overflow: hidden; }
+        .lp-mockup-mobile { display: none; padding: 24px; background: #fff; text-align: left; }
+        .lp-mockup-mobile-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+        .lp-mockup-mobile-text { font-size: 13px; color: var(--muted); line-height: 1.6; }
+        .lp-mockup-mobile-pills { display: grid; gap: 8px; margin-top: 18px; }
+        .lp-mockup-mobile-pill { display: flex; align-items: center; justify-content: space-between; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 12px; font-size: 13px; color: #111827; background: #f8fafc; }
+        .lp-mockup-mobile-pill span { color: var(--blue); font-weight: 700; }
         .lp-mock-sidebar { width: 180px; flex-shrink: 0; background: #fff; border-right: 1px solid #e2e8f0; padding: 16px 0; display: flex; flex-direction: column; }
         .lp-mock-logo { padding: 0 16px 16px; font-weight: 800; font-size: 15px; font-family: 'Syne', sans-serif; color: #111; }
         .lp-mock-logo span { color: #2563eb; }
@@ -150,33 +149,23 @@ export default function Home() {
         .lp-pricing-cta:hover { background: #1d4ed8; transform: translateY(-1px); }
         .lp-pricing-note { font-size: 12px; color: var(--muted); margin-top: 12px; text-align: center; }
         .lp-faq { max-width: 640px; margin: 0 auto 80px; padding: 0 24px; }
-        .lp-faq-item { border-bottom: 1px solid var(--border); padding: 18px 0; cursor: pointer; }
+        .lp-faq-item { border-bottom: 1px solid var(--border); padding: 18px 0;  }
         .lp-faq-item:last-child { border-bottom: none; }
-        .lp-faq-q { font-size: 15px; font-weight: 500; color: var(--text); display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+        .lp-faq-q { font-size: 15px; font-weight: 500; color: var(--text); display: flex; justify-content: space-between; align-items: center; gap: 12px; cursor: pointer; list-style: none; }
+        .lp-faq-q::-webkit-details-marker { display: none; }
         .lp-faq-q svg { flex-shrink: 0; transition: transform 0.2s; }
-        .lp-faq-item.open .lp-faq-q svg { transform: rotate(180deg); }
+        .lp-faq-item[open] .lp-faq-q svg { transform: rotate(180deg); }
         .lp-faq-a { font-size: 14px; color: var(--muted); line-height: 1.65; max-height: 0; overflow: hidden; transition: max-height 0.3s ease, padding-top 0.2s; }
-        .lp-faq-item.open .lp-faq-a { max-height: 200px; padding-top: 10px; }
+        .lp-faq-item[open] .lp-faq-a { max-height: 200px; padding-top: 10px; }
         .lp-footer-cta { background: #0f172a; padding: 72px 24px; text-align: center; }
         .lp-footer-cta h2 { font-family: 'Syne', sans-serif; font-size: clamp(28px, 4vw, 40px); font-weight: 800; color: #fff; margin-bottom: 14px; line-height: 1.2; }
         .lp-footer-cta p { font-size: 16px; color: #94a3b8; margin-bottom: 32px; max-width: 480px; margin-left: auto; margin-right: auto; }
         .lp-footer { padding: 24px; text-align: center; font-size: 12px; color: var(--muted); border-top: 1px solid var(--border); }
         .lp-footer a { color: inherit; }
-        .lp-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
-        .lp-modal-overlay.open { display: flex; }
-        .lp-modal { background: #fff; border-radius: 16px; padding: 36px; max-width: 440px; width: 100%; text-align: center; }
-        .lp-modal-icon { width: 56px; height: 56px; background: var(--green-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 18px; }
-        .lp-modal-title { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; color: var(--text); margin-bottom: 10px; }
-        .lp-modal-sub { font-size: 14px; color: var(--muted); line-height: 1.6; margin-bottom: 24px; }
-        .lp-modal input { width: 100%; padding: 12px 14px; border: 1.5px solid var(--border); border-radius: 9px; font-size: 14px; margin-bottom: 12px; outline: none; font-family: inherit; }
-        .lp-modal input:focus { border-color: var(--blue); }
-        .lp-modal-submit { width: 100%; padding: 14px; background: var(--blue); color: #fff; border: none; border-radius: 9px; font-size: 15px; font-weight: 600; cursor: pointer; }
-        .lp-modal-submit:hover { background: #1d4ed8; }
-        .lp-modal-note { font-size: 12px; color: var(--muted); margin-top: 10px; }
-        .lp-modal-close { background: none; border: none; color: var(--muted); font-size: 13px; cursor: pointer; margin-top: 10px; text-decoration: underline; }
         @media (max-width: 640px) {
           .lp-compare-grid { grid-template-columns: 1fr; }
           .lp-mockup-body { display: none; }
+          .lp-mockup-mobile { display: block; }
           .lp-nav-links { display: none; }
           .lp-proof-bar { gap: 16px; }
         }
@@ -195,7 +184,7 @@ export default function Home() {
 
       {/* HERO */}
       <section className="lp-hero">
-        <div className="lp-hero-badge"><span></span> Lancé en juin 2024 · 127 indépendants en liste</div>
+        <div className="lp-hero-badge"><span></span> Lancé en juin 2026 · Disponible maintenant</div>
         <h1 className="lp-h1">Le CRM qui disparaît<br />quand vous avez <em>mieux à faire</em></h1>
         <p className="lp-hero-sub">Suivez vos prospects, relancez au bon moment, et ne perdez plus jamais un deal — sans passer 2 heures à configurer un outil.</p>
         <div className="lp-hero-cta-group">
@@ -210,7 +199,7 @@ export default function Home() {
 
       {/* PROOF BAR */}
       <div className="lp-proof-bar">
-        {["Aucune carte bleue pour l'essai", "Données hébergées en France", "Opérationnel en moins de 5 minutes", "Support humain en français"].map((item) => (
+        {["Aucune carte bleue pour l'essai", "Données hébergées en Europe", "Opérationnel en moins de 5 minutes", "Support humain en français"].map((item) => (
           <div key={item} className="lp-proof-item">
             <svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
             {item}
@@ -270,6 +259,15 @@ export default function Home() {
               </div>
             </div>
           </div>
+          <div className="lp-mockup-mobile">
+            <div className="lp-mockup-mobile-title">Votre pipeline en un coup d&apos;oeil</div>
+            <p className="lp-mockup-mobile-text">Suivez vos prospects, vos devis et vos deals gagn&eacute;s depuis une vue claire sur mobile.</p>
+            <div className="lp-mockup-mobile-pills">
+              <div className="lp-mockup-mobile-pill">Prospects actifs <span>12</span></div>
+              <div className="lp-mockup-mobile-pill">Pipeline <span>38 400 &euro;</span></div>
+              <div className="lp-mockup-mobile-pill">Relances <span>3</span></div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -310,7 +308,7 @@ export default function Home() {
             </div>
             <div className="lp-compare-col good">
               <div className="lp-compare-col-title">crm.light</div>
-              {["Opérationnel en 5 minutes","Interface épurée, zéro formation","29 €/mois fixe, contacts illimités","Hébergé en France (RGPD)","Support humain en français"].map(item => (
+              {["Opérationnel en 5 minutes","Interface épurée, zéro formation","29 €/mois fixe, contacts illimités","Hébergé en Europe (RGPD)","Support humain en français"].map(item => (
                 <div key={item} className="lp-compare-item"><svg className="lp-good-ico" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>{item}</div>
               ))}
             </div>
@@ -368,10 +366,10 @@ export default function Home() {
         <div className="lp-section-label">Questions fréquentes</div>
         <div className="lp-section-title" style={{marginBottom:"32px"}}>Tout ce que vous<br />voulez savoir</div>
         {faqs.map((faq, i) => (
-          <div key={i} className={`lp-faq-item${openFaq === i ? " open" : ""}`} onClick={() => toggleFaq(i)}>
-            <div className="lp-faq-q">{faq.q}<svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" width="18" height="18"><polyline points="6 9 12 15 18 9"/></svg></div>
+          <details key={i} className="lp-faq-item">
+            <summary className="lp-faq-q">{faq.q}<svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" width="18" height="18"><polyline points="6 9 12 15 18 9"/></svg></summary>
             <div className="lp-faq-a">{faq.a}</div>
-          </div>
+          </details>
         ))}
       </section>
 
@@ -386,7 +384,7 @@ export default function Home() {
       </section>
 
       <footer className="lp-footer">
-        © 2024 crm.light · <a href="#">Mentions légales</a> · <a href="#">Politique de confidentialité</a>
+        © 2026 crm.light · <Link href="/mentions-legales">Mentions légales</Link> · <Link href="/confidentialite">Politique de confidentialité</Link>
       </footer>
     </>
   );

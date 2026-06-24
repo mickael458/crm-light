@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -14,7 +14,6 @@ export function AuthForm({ mode }: AuthFormProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isLogin = mode === "login";
@@ -22,7 +21,6 @@ export function AuthForm({ mode }: AuthFormProps) {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
-    setSuccess(null);
 
     if (!email || !password) {
       setError("Renseigne ton email et ton mot de passe.");
@@ -48,7 +46,8 @@ export function AuthForm({ mode }: AuthFormProps) {
       return;
     }
 
-    setSuccess("Compte créé. Vérifie ton email si Supabase demande une confirmation, puis connecte-toi.");
+    router.push("/pricing");
+    router.refresh();
   }
 
   return (
@@ -95,11 +94,6 @@ export function AuthForm({ mode }: AuthFormProps) {
         <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
       ) : null}
 
-      {success ? (
-        <p className="rounded-md bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
-          {success}
-        </p>
-      ) : null}
 
       <button
         type="submit"

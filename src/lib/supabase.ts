@@ -1,4 +1,4 @@
-﻿import { createBrowserClient } from "@supabase/ssr";
+import { createBrowserClient } from "@supabase/ssr";
 import type { Database } from "@/lib/database.types";
 
 export const supabaseUrl = (process.env.NEXT_PUBLIC_SUPABASE_URL ?? "").trim();
@@ -23,9 +23,6 @@ function assertSupabaseConfig() {
 // Cree le client utilise par les formulaires cote navigateur.
 export function createClientSupabase() {
   assertSupabaseConfig();
-
-  // Log temporaire pour verifier que la cle anon est bien lue cote navigateur.
-  console.log("Supabase anon key prefix:", supabaseAnonKey.slice(0, 10));
 
   return createBrowserClient<Database>(supabaseUrl, supabaseAnonKey);
 }
