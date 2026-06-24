@@ -1,4 +1,4 @@
-﻿CREATE TABLE IF NOT EXISTS public.contacts (
+CREATE TABLE IF NOT EXISTS public.contacts (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
@@ -16,19 +16,37 @@ CREATE TABLE IF NOT EXISTS public.deals (
   title TEXT NOT NULL,
   amount DECIMAL(10,2),
   stage TEXT DEFAULT 'prospect' CHECK (stage IN ('prospect', 'discussion', 'devis', 'gagne', 'perdu')),
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS public.profiles (
   id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
   subscribed BOOLEAN DEFAULT FALSE,
   subscription_id TEXT,
+  onboarding_activity TEXT CHECK (onboarding_activity IN ('consultant', 'coach', 'freelance', 'artisan', 'autre')),
+  onboarding_cycle TEXT CHECK (onboarding_cycle IN ('court', 'long', 'devis', 'appel')),
+  onboarding_delay INTEGER CHECK (onboarding_delay IN (3, 5, 7, 14)),
+  onboarding_goal TEXT CHECK (onboarding_goal IN ('relance', 'devis', 'pipeline')),
+  onboarding_channels TEXT[],
+  onboarding_summary TEXT CHECK (onboarding_summary IN ('matin', 'hebdo', 'jamais')),
+  onboarding_done BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 ALTER TABLE public.contacts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.deals ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS onboarding_activity TEXT CHECK (onboarding_activity IN ('consultant', 'coach', 'freelance', 'artisan', 'autre'));
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS onboarding_cycle TEXT CHECK (onboarding_cycle IN ('court', 'long', 'devis', 'appel'));
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS onboarding_delay INTEGER CHECK (onboarding_delay IN (3, 5, 7, 14));
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS onboarding_goal TEXT CHECK (onboarding_goal IN ('relance', 'devis', 'pipeline'));
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS onboarding_channels TEXT[];
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS onboarding_summary TEXT CHECK (onboarding_summary IN ('matin', 'hebdo', 'jamais'));
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS onboarding_done BOOLEAN DEFAULT FALSE;
+ALTER TABLE public.deals ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+UPDATE public.deals SET updated_at = COALESCE(updated_at, created_at, NOW()) WHERE updated_at IS NULL;
 
 DROP POLICY IF EXISTS "Users see own contacts" ON public.contacts;
 CREATE POLICY "Users see own contacts" ON public.contacts
@@ -68,3 +86,16 @@ DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
+CREATE OR REPLACE FUNCTION public.set_deal_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS set_deal_updated_at ON public.deals;
+CREATE TRIGGER set_deal_updated_at
+  BEFORE UPDATE ON public.deals
+  FOR EACH ROW EXECUTE FUNCTION public.set_deal_updated_at();

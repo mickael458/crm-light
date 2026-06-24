@@ -2,7 +2,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { SignOutButton } from "@/components/SignOutButton";
 import { visiblePipelineStages } from "@/lib/deals";
-import { fetchPipelineStats } from "@/lib/deals-server";
+import { calculatePipelineStats, fetchCurrentUserDeals } from "@/lib/deals-server";
+import { getOverdueQuoteDeals, normalizeDelayDays } from "@/lib/deal-heat";
 import { formatCurrency, getStageLabel } from "@/lib/format";
 import { fetchCurrentUserProfile } from "@/lib/profiles-server";
 import { getCurrentUser } from "@/lib/session";
@@ -14,15 +15,23 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
-  const [stats, profile] = await Promise.all([
-    fetchPipelineStats(),
+  const [deals, profile] = await Promise.all([
+    fetchCurrentUserDeals(),
     fetchCurrentUserProfile(user.id),
   ]);
+  if (!profile?.onboarding_done) {
+    redirect("/onboarding");
+  }
+
   const isSubscribed = Boolean(profile?.subscribed);
 
   if (!isSubscribed) {
     redirect("/pricing");
   }
+
+  const followUpDelayDays = normalizeDelayDays(profile?.onboarding_delay);
+  const stats = calculatePipelineStats(deals);
+  const overdueQuoteCount = getOverdueQuoteDeals(deals, followUpDelayDays).length;
 
   return (
     <main className="min-h-screen bg-zinc-50 px-4 py-8 sm:px-6 lg:px-8">
@@ -42,6 +51,18 @@ export default async function DashboardPage() {
           </div>
           <SignOutButton />
         </header>
+
+        {overdueQuoteCount > 0 ? (
+          <Link
+            href="/dashboard/pipeline"
+            className="flex flex-col gap-2 rounded-lg border border-amber-200 bg-amber-50 px-5 py-4 text-sm font-medium text-amber-900 transition hover:bg-amber-100 sm:flex-row sm:items-center sm:justify-between"
+          >
+            <span>
+              {overdueQuoteCount} devis sans réponse depuis plus de {followUpDelayDays} jours
+            </span>
+            <span className="text-amber-800 underline underline-offset-4">Voir le pipeline</span>
+          </Link>
+        ) : null}
 
         <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-medium text-emerald-800">
           Plan Solo actif

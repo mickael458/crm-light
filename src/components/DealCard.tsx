@@ -1,6 +1,13 @@
 import type { DealWithContact } from "@/lib/database.types";
 import { formatCurrency, formatDate, getStageLabel } from "@/lib/format";
 import { getContactName } from "@/lib/deals";
+import { getDealHeat } from "@/lib/deal-heat";
+
+const heatConfig = {
+  urgent: { className: "bg-red-500", label: "Relance urgente" },
+  watch: { className: "bg-amber-400", label: "À surveiller" },
+  recent: { className: "bg-emerald-500", label: "Récent" },
+};
 
 const stageBadgeClass = {
   prospect: "bg-sky-50 text-sky-700 ring-sky-200",
@@ -12,13 +19,21 @@ const stageBadgeClass = {
 
 type DealCardProps = {
   deal: DealWithContact;
+  followUpDelayDays: number;
 };
 
-export function DealCard({ deal }: DealCardProps) {
+export function DealCard({ deal, followUpDelayDays }: DealCardProps) {
   const stage = deal.stage ?? "prospect";
+  const heat = getDealHeat(deal, followUpDelayDays);
+  const heatIndicator = heatConfig[heat];
 
   return (
-    <article className="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm">
+    <article className="relative rounded-lg border border-zinc-200 bg-white p-4 pr-7 shadow-sm">
+      <span
+        aria-label={heatIndicator.label}
+        title={heatIndicator.label}
+        className={`absolute right-3 top-3 h-2 w-2 rounded-full ${heatIndicator.className}`}
+      />
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <h3 className="truncate text-sm font-semibold text-zinc-950">
@@ -29,7 +44,7 @@ export function DealCard({ deal }: DealCardProps) {
           </p>
         </div>
         <span
-          className={`shrink-0 rounded-full px-2 py-1 text-xs font-medium ring-1 ${stageBadgeClass[stage]}`}
+          className={`mr-2 shrink-0 rounded-full px-2 py-1 text-xs font-medium ring-1 ${stageBadgeClass[stage]}`}
         >
           {getStageLabel(stage)}
         </span>

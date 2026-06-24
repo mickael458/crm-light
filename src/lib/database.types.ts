@@ -8,6 +8,10 @@ export type Json =
 
 export type ContactStatus = "chaud" | "tiede" | "froid";
 export type DealStage = "prospect" | "discussion" | "devis" | "gagne" | "perdu";
+export type OnboardingActivity = "consultant" | "coach" | "freelance" | "artisan" | "autre";
+export type OnboardingCycle = "court" | "long" | "devis" | "appel";
+export type OnboardingGoal = "relance" | "devis" | "pipeline";
+export type OnboardingSummary = "matin" | "hebdo" | "jamais";
 
 export type Database = {
   public: {
@@ -54,6 +58,7 @@ export type Database = {
           amount: number | null;
           stage: DealStage | null;
           created_at: string | null;
+          updated_at: string | null;
         };
         Insert: {
           id?: string;
@@ -63,6 +68,7 @@ export type Database = {
           amount?: number | null;
           stage?: DealStage | null;
           created_at?: string | null;
+          updated_at?: string | null;
         };
         Update: {
           id?: string;
@@ -72,6 +78,7 @@ export type Database = {
           amount?: number | null;
           stage?: DealStage | null;
           created_at?: string | null;
+          updated_at?: string | null;
         };
         Relationships: [];
       };
@@ -80,18 +87,39 @@ export type Database = {
           id: string;
           subscribed: boolean | null;
           subscription_id: string | null;
+          onboarding_activity: OnboardingActivity | null;
+          onboarding_cycle: OnboardingCycle | null;
+          onboarding_delay: number | null;
+          onboarding_goal: OnboardingGoal | null;
+          onboarding_channels: string[] | null;
+          onboarding_summary: OnboardingSummary | null;
+          onboarding_done: boolean | null;
           created_at: string | null;
         };
         Insert: {
           id: string;
           subscribed?: boolean | null;
           subscription_id?: string | null;
+          onboarding_activity?: OnboardingActivity | null;
+          onboarding_cycle?: OnboardingCycle | null;
+          onboarding_delay?: number | null;
+          onboarding_goal?: OnboardingGoal | null;
+          onboarding_channels?: string[] | null;
+          onboarding_summary?: OnboardingSummary | null;
+          onboarding_done?: boolean | null;
           created_at?: string | null;
         };
         Update: {
           id?: string;
           subscribed?: boolean | null;
           subscription_id?: string | null;
+          onboarding_activity?: OnboardingActivity | null;
+          onboarding_cycle?: OnboardingCycle | null;
+          onboarding_delay?: number | null;
+          onboarding_goal?: OnboardingGoal | null;
+          onboarding_channels?: string[] | null;
+          onboarding_summary?: OnboardingSummary | null;
+          onboarding_done?: boolean | null;
           created_at?: string | null;
         };
         Relationships: [];

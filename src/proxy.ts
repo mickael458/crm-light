@@ -28,5 +28,5 @@ function redirectToLogin(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/api/create-checkout"],
+  matcher: ["/dashboard/:path*", "/onboarding", "/api/create-checkout"],
 };

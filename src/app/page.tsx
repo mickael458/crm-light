@@ -134,7 +134,7 @@ export default function Home() {
         .lp-testimonial-name { font-size: 13px; font-weight: 600; color: var(--text); }
         .lp-testimonial-role { font-size: 11px; color: var(--muted); }
         .lp-pricing { max-width: 520px; margin: 0 auto 80px; padding: 0 24px; text-align: center; }
-        .lp-pricing-card { background: var(--white); border: 2px solid var(--blue); border-radius: 16px; padding: 36px; margin-top: 40px; text-align: left; position: relative; }
+        .lp-pricing-card { background: var(--white); border: 2px solid var(--blue); border-radius: 16px; padding: 44px 36px 36px; margin-top: 40px; text-align: left; position: relative; }
         .lp-pricing-badge { position: absolute; top: -13px; left: 50%; transform: translateX(-50%); background: var(--blue); color: #fff; font-size: 11px; font-weight: 600; padding: 4px 14px; border-radius: 99px; white-space: nowrap; }
         .lp-pricing-plan { font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
         .lp-pricing-price { font-family: 'Syne', sans-serif; font-size: 52px; font-weight: 800; color: var(--text); line-height: 1; margin-bottom: 4px; }
@@ -179,22 +179,22 @@ export default function Home() {
           <a href="#pricing">Tarifs</a>
           <a href="#faq">FAQ</a>
         </div>
-        <Link href="/register" className="lp-nav-cta">Commencer — 29 €/mois</Link>
+        <Link href="/register" className="lp-nav-cta">Commencer — 9 €/mois</Link>
       </nav>
 
       {/* HERO */}
       <section className="lp-hero">
-        <div className="lp-hero-badge"><span></span> Lancé en juin 2026 · Disponible maintenant</div>
-        <h1 className="lp-h1">Le CRM qui disparaît<br />quand vous avez <em>mieux à faire</em></h1>
-        <p className="lp-hero-sub">Suivez vos prospects, relancez au bon moment, et ne perdez plus jamais un deal — sans passer 2 heures à configurer un outil.</p>
+        <div className="lp-hero-badge"><span></span> CRM de relance · Pour consultants, coachs et freelances</div>
+        <h1 className="lp-h1">Ne ratez plus jamais<br />une relance ou un devis</h1>
+        <p className="lp-hero-sub">40% des indépendants perdent des contrats par oubli de relance. crm-light vous dit exactement qui relancer aujourd&apos;hui, en 30 secondes.</p>
         <div className="lp-hero-cta-group">
           <Link href="/register" className="lp-btn-big">
             <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-            Démarrer maintenant — 29 €/mois
+            Démarrer maintenant — 9 €/mois
           </Link>
           <a href="#features" className="lp-btn-outline">Voir comment ça marche</a>
         </div>
-        <p className="lp-hero-reassurance">Sans engagement · <strong>14 jours d&apos;essai gratuit</strong> · Annulation en 1 clic</p>
+        <p className="lp-hero-reassurance">Sans engagement · <strong>14 jours gratuits · Sans carte bancaire</strong> · Annulation en 1 clic</p>
       </section>
 
       {/* PROOF BAR */}
@@ -274,7 +274,7 @@ export default function Home() {
       {/* FEATURES */}
       <section className="lp-features" id="features">
         <div className="lp-section-label">Fonctionnalités</div>
-        <div className="lp-section-title">Tout ce qu&apos;il vous faut.<br />Rien de superflu.</div>
+        <div className="lp-section-title">Vos relances, votre pipeline, vos devis.<br />C&apos;est tout.</div>
         <p className="lp-section-sub">Chaque fonctionnalité a été choisie pour répondre à un vrai problème d&apos;indépendant. Pas de modules inutiles, pas de certifications à faire.</p>
         <div className="lp-features-grid">
           {[
@@ -298,17 +298,17 @@ export default function Home() {
       <section className="lp-compare">
         <div className="lp-compare-inner">
           <div className="lp-section-label" style={{textAlign:"center"}}>Pourquoi pas HubSpot ?</div>
-          <div className="lp-section-title" style={{textAlign:"center"}}>Fait pour les solo, pas pour les équipes</div>
+          <div className="lp-section-title" style={{textAlign:"center"}}>Fait pour ne plus perdre de contrats par oubli</div>
           <div className="lp-compare-grid">
             <div className="lp-compare-col bad">
-              <div className="lp-compare-col-title">HubSpot / Salesforce</div>
-              {["2 à 4 heures de configuration","Des dizaines de champs inutiles","Prix qui explose avec les contacts","Données aux États-Unis","Support en anglais ou chatbot"].map(item => (
+              <div className="lp-compare-col-title">Agenda + post-its</div>
+              {["Relances oubliées régulièrement","Prospects perdus sans s'en rendre compte","Aucune visibilité sur les devis en attente","Charge mentale permanente","Temps perdu à tout gérer manuellement"].map(item => (
                 <div key={item} className="lp-compare-item"><svg className="lp-bad-ico" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>{item}</div>
               ))}
             </div>
             <div className="lp-compare-col good">
               <div className="lp-compare-col-title">crm.light</div>
-              {["Opérationnel en 5 minutes","Interface épurée, zéro formation","29 €/mois fixe, contacts illimités","Hébergé en Europe (RGPD)","Support humain en français"].map(item => (
+              {["Chaque relance rappelée au bon moment","Score chaud/tiède/froid par prospect","Devis suivis automatiquement","Dashboard clair en 10 secondes","Opérationnel en 5 minutes"].map(item => (
                 <div key={item} className="lp-compare-item"><svg className="lp-good-ico" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>{item}</div>
               ))}
             </div>
@@ -347,12 +347,12 @@ export default function Home() {
         <div className="lp-section-title">Un seul plan.<br />Un seul prix.</div>
         <p className="lp-section-sub">Pas de paliers confus, pas de fonctionnalités cachées derrière un tier supérieur.</p>
         <div className="lp-pricing-card">
-          <div className="lp-pricing-badge">14 jours d&apos;essai gratuit</div>
+          <div className="lp-pricing-badge">14 jours gratuits · Sans carte bancaire</div>
           <div className="lp-pricing-plan">Plan Solo</div>
-          <div className="lp-pricing-price"><sup>€</sup>29<sub>/mois</sub></div>
-          <p className="lp-pricing-desc">Tout inclus, contacts illimités, sans engagement. Annulez à tout moment depuis votre compte.</p>
+          <div className="lp-pricing-price"><sup>€</sup>9<sub>/mois</sub></div>
+          <p className="lp-pricing-desc">Pour les indépendants qui veulent ne plus rater une relance ou un devis. Sans engagement, annulation en 1 clic.</p>
           <ul className="lp-pricing-features">
-            {["Contacts et deals illimités","Pipeline Kanban personnalisable","Relances automatiques","Devis intégrés","Accès mobile","Hébergement France · RGPD","Support humain par email"].map(item => (
+            {["Contacts et deals illimités","Pipeline Kanban personnalisable","Relances automatiques","Devis intégrés","Accès mobile","Hébergement Europe · RGPD","Support humain par email"].map(item => (
               <li key={item}><svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>{item}</li>
             ))}
           </ul>
@@ -384,7 +384,7 @@ export default function Home() {
       </section>
 
       <footer className="lp-footer">
-        © 2026 crm.light · <Link href="/mentions-legales">Mentions légales</Link> · <Link href="/confidentialite">Politique de confidentialité</Link>
+        © 2026 crm-light · <Link href="/mentions-legales">Mentions légales</Link> · <Link href="/confidentialite">Politique de confidentialité</Link>
       </footer>
     </>
   );

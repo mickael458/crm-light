@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { PipelineBoard } from "@/components/PipelineBoard";
 import { fetchCurrentUserContacts } from "@/lib/contacts-server";
 import { fetchCurrentUserDeals } from "@/lib/deals-server";
+import { normalizeDelayDays } from "@/lib/deal-heat";
+import { fetchCurrentUserProfile } from "@/lib/profiles-server";
 import { getCurrentUser } from "@/lib/session";
 
 export default async function PipelinePage() {
@@ -12,10 +14,12 @@ export default async function PipelinePage() {
     redirect("/login");
   }
 
-  const [deals, contacts] = await Promise.all([
+  const [deals, contacts, profile] = await Promise.all([
     fetchCurrentUserDeals(),
     fetchCurrentUserContacts(),
+    fetchCurrentUserProfile(user.id),
   ]);
+  const followUpDelayDays = normalizeDelayDays(profile?.onboarding_delay);
 
   return (
     <main className="min-h-screen bg-zinc-50 px-4 py-8 sm:px-6 lg:px-8">
@@ -48,7 +52,7 @@ export default async function PipelinePage() {
           </div>
         </header>
 
-        <PipelineBoard initialDeals={deals} contacts={contacts} />
+        <PipelineBoard initialDeals={deals} contacts={contacts} followUpDelayDays={followUpDelayDays} />
       </section>
     </main>
   );

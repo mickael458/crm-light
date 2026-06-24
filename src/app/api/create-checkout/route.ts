@@ -1,4 +1,4 @@
-﻿import { NextResponse, type NextRequest } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { getStripe } from "@/lib/stripe";
 import { createServerSupabase } from "@/lib/supabase-server";
 
@@ -47,25 +47,31 @@ export async function POST(request: NextRequest) {
     }
 
     const stripe = getStripe();
+    const stripePriceId = process.env.STRIPE_PRICE_ID?.trim();
 
     // Crée une session Checkout avec un prix mensuel inline pour le MVP.
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       customer_email: user.email ?? undefined,
       line_items: [
-        {
-          quantity: 1,
-          price_data: {
-            currency: "eur",
-            unit_amount: 2900,
-            recurring: {
-              interval: "month",
+        stripePriceId
+          ? {
+              price: stripePriceId,
+              quantity: 1,
+            }
+          : {
+              quantity: 1,
+              price_data: {
+                currency: "eur",
+                unit_amount: 900,
+                recurring: {
+                  interval: "month",
+                },
+                product_data: {
+                  name: "CRM Light - Plan Solo",
+                },
+              },
             },
-            product_data: {
-              name: "CRM Light - Plan Solo",
-            },
-          },
-        },
       ],
       metadata: {
         user_id: user.id,

@@ -54,6 +54,7 @@ export async function addDeal(input: DealFormInput): Promise<DealResult> {
     amount,
     contact_id: input.contactId || null,
     stage: input.stage,
+    updated_at: new Date().toISOString(),
   };
 
   const { data, error } = await supabase
@@ -78,7 +79,7 @@ export async function updateDealStage(dealId: string, stage: DealStage) {
   const supabase = createClientSupabase();
   const { error } = await supabase
     .from("deals")
-    .update({ stage })
+    .update({ stage, updated_at: new Date().toISOString() })
     .eq("id", dealId);
 
   return { error: error?.message };

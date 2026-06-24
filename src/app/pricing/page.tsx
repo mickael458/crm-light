@@ -1,4 +1,4 @@
-﻿import { PricingCheckoutButton } from "@/components/PricingCheckoutButton";
+import { PricingCheckoutButton } from "@/components/PricingCheckoutButton";
 
 const includedFeatures = [
   "Contacts illimités",
@@ -28,7 +28,7 @@ export default function PricingPage() {
           <div className="border-b border-zinc-200 pb-6">
             <h2 className="text-2xl font-semibold text-zinc-950">Plan Solo</h2>
             <p className="mt-3 flex items-end gap-2 text-zinc-950">
-              <span className="text-4xl font-semibold">29&euro;</span>
+              <span className="text-4xl font-semibold">9&euro;</span>
               <span className="pb-1 text-sm text-zinc-500">/mois</span>
             </p>
           </div>

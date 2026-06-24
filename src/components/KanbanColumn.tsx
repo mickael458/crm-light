@@ -9,9 +9,10 @@ type KanbanColumnProps = {
   title: string;
   deals: DealWithContact[];
   onAddDeal: (stage: DealStage) => void;
+  followUpDelayDays: number;
 };
 
-export function KanbanColumn({ stage, title, deals, onAddDeal }: KanbanColumnProps) {
+export function KanbanColumn({ stage, title, deals, onAddDeal, followUpDelayDays }: KanbanColumnProps) {
   return (
     <section className="flex min-h-[320px] min-w-[260px] flex-1 flex-col rounded-lg border border-zinc-200 bg-zinc-50">
       <header className="flex items-center justify-between gap-3 border-b border-zinc-200 px-4 py-3">
@@ -48,7 +49,7 @@ export function KanbanColumn({ stage, title, deals, onAddDeal }: KanbanColumnPro
                     {...dragProvided.dragHandleProps}
                     className={dragSnapshot.isDragging ? "opacity-80" : undefined}
                   >
-                    <DealCard deal={deal} />
+                    <DealCard deal={deal} followUpDelayDays={followUpDelayDays} />
                   </div>
                 )}
               </Draggable>

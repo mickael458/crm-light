@@ -46,7 +46,7 @@ export function AuthForm({ mode }: AuthFormProps) {
       return;
     }
 
-    router.push("/pricing");
+    router.push("/onboarding");
     router.refresh();
   }
 

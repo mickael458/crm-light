@@ -44,9 +44,7 @@ export async function fetchCurrentUserDeals() {
 }
 
 // Calcule les indicateurs du dashboard a partir des deals visibles.
-export async function fetchPipelineStats(): Promise<PipelineStats> {
-  const deals = await fetchCurrentUserDeals();
-
+export function calculatePipelineStats(deals: DealWithContact[]): PipelineStats {
   return deals.reduce<PipelineStats>(
     (stats, deal) => {
       const stage = deal.stage ?? "prospect";
@@ -59,4 +57,8 @@ export async function fetchPipelineStats(): Promise<PipelineStats> {
       totalValue: 0,
     },
   );
+}
+
+export async function fetchPipelineStats(): Promise<PipelineStats> {
+  return calculatePipelineStats(await fetchCurrentUserDeals());
 }

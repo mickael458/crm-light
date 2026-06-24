@@ -11,9 +11,10 @@ import { updateDealStage, visiblePipelineStages } from "@/lib/deals";
 type PipelineBoardProps = {
   initialDeals: DealWithContact[];
   contacts: Contact[];
+  followUpDelayDays: number;
 };
 
-export function PipelineBoard({ initialDeals, contacts }: PipelineBoardProps) {
+export function PipelineBoard({ initialDeals, contacts, followUpDelayDays }: PipelineBoardProps) {
   const [deals, setDeals] = useState(initialDeals);
   const [modalStage, setModalStage] = useState<DealStage>("prospect");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -88,6 +89,7 @@ export function PipelineBoard({ initialDeals, contacts }: PipelineBoardProps) {
               title={getStageLabel(stage)}
               deals={dealsByStage[stage]}
               onAddDeal={openAddDeal}
+              followUpDelayDays={followUpDelayDays}
             />
           ))}
         </div>
