@@ -1,10 +1,24 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { SignOutButton } from "@/components/SignOutButton";
+import type { DealWithContact, OnboardingGoal } from "@/lib/database.types";
 import { visiblePipelineStages } from "@/lib/deals";
 import { calculatePipelineStats, fetchCurrentUserDeals } from "@/lib/deals-server";
-import { getOverdueQuoteDeals, normalizeDelayDays } from "@/lib/deal-heat";
+import {
+  getDaysSinceLastUpdate,
+  getDealHeat,
+  getOverdueQuoteDeals,
+  normalizeDelayDays,
+} from "@/lib/deal-heat";
 import { formatCurrency, getStageLabel } from "@/lib/format";
+
+const activityLabels: Record<string, string> = {
+  consultant: "consultant",
+  coach: "coach",
+  freelance: "freelance",
+  artisan: "artisan",
+  autre: "indépendant",
+};
 import { fetchCurrentUserProfile } from "@/lib/profiles-server";
 import { getCurrentUser } from "@/lib/session";
 
@@ -31,7 +45,13 @@ export default async function DashboardPage() {
 
   const followUpDelayDays = normalizeDelayDays(profile?.onboarding_delay);
   const stats = calculatePipelineStats(deals);
-  const overdueQuoteCount = getOverdueQuoteDeals(deals, followUpDelayDays).length;
+  const overdueQuoteDeals = getOverdueQuoteDeals(deals, followUpDelayDays);
+  const overdueQuoteCount = overdueQuoteDeals.length;
+  const urgentDeals = deals.filter(
+    (deal) => getDealHeat(deal, followUpDelayDays) === "urgent",
+  );
+  const goal: OnboardingGoal = profile?.onboarding_goal ?? "relance";
+  const activityLabel = activityLabels[profile?.onboarding_activity ?? "autre"];
 
   return (
     <main className="min-h-screen bg-zinc-50 px-4 py-8 sm:px-6 lg:px-8">
@@ -45,14 +65,23 @@ export default async function DashboardPage() {
               Tableau de bord
             </h1>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-600">
-              Bienvenue {user.email}. Suis tes contacts, tes opportunités et la
-              valeur de ton pipeline.
+              Bienvenue {user.email}. Ton espace de relance, configuré pour ton
+              activité de {activityLabel}.
             </p>
           </div>
           <SignOutButton />
         </header>
 
-        {overdueQuoteCount > 0 ? (
+        <DashboardFocus
+          goal={goal}
+          urgentDeals={urgentDeals}
+          overdueQuoteDeals={overdueQuoteDeals}
+          delayDays={followUpDelayDays}
+          totalValue={stats.totalValue}
+          dealCount={deals.length}
+        />
+
+        {goal !== "devis" && overdueQuoteCount > 0 ? (
           <Link
             href="/dashboard/pipeline"
             className="flex flex-col gap-2 rounded-lg border border-amber-200 bg-amber-50 px-5 py-4 text-sm font-medium text-amber-900 transition hover:bg-amber-100 sm:flex-row sm:items-center sm:justify-between"
@@ -118,5 +147,108 @@ export default async function DashboardPage() {
         </section>
       </section>
     </main>
+  );
+}
+
+function DashboardFocus({
+  goal,
+  urgentDeals,
+  overdueQuoteDeals,
+  delayDays,
+  totalValue,
+  dealCount,
+}: {
+  goal: OnboardingGoal;
+  urgentDeals: DealWithContact[];
+  overdueQuoteDeals: DealWithContact[];
+  delayDays: number;
+  totalValue: number;
+  dealCount: number;
+}) {
+  if (goal === "devis") {
+    return (
+      <article className="rounded-lg border border-zinc-200 bg-white p-5 shadow-sm">
+        <h2 className="text-lg font-semibold text-zinc-950">Tes devis en attente</h2>
+        {overdueQuoteDeals.length > 0 ? (
+          <>
+            <p className="mt-1 text-sm text-zinc-600">
+              {overdueQuoteDeals.length} devis sans réponse depuis plus de {delayDays} jours.
+            </p>
+            <FocusList deals={overdueQuoteDeals} />
+          </>
+        ) : (
+          <p className="mt-2 text-sm text-zinc-600">
+            Aucun devis en attente de réponse pour l&apos;instant.
+          </p>
+        )}
+        <FocusLink />
+      </article>
+    );
+  }
+
+  if (goal === "pipeline") {
+    return (
+      <article className="rounded-lg border border-zinc-200 bg-white p-5 shadow-sm">
+        <h2 className="text-lg font-semibold text-zinc-950">
+          Ton pipeline en un coup d&apos;œil
+        </h2>
+        <p className="mt-1 text-sm text-zinc-600">
+          {dealCount} opportunité{dealCount > 1 ? "s" : ""} en cours · {formatCurrency(totalValue)} de valeur totale.
+        </p>
+        <FocusLink />
+      </article>
+    );
+  }
+
+  return (
+    <article className="rounded-lg border border-zinc-200 bg-white p-5 shadow-sm">
+      <h2 className="text-lg font-semibold text-zinc-950">À relancer aujourd&apos;hui</h2>
+      {urgentDeals.length > 0 ? (
+        <>
+          <p className="mt-1 text-sm text-zinc-600">
+            {urgentDeals.length} deal{urgentDeals.length > 1 ? "s" : ""} sans contact depuis plus de {delayDays} jours.
+          </p>
+          <FocusList deals={urgentDeals} />
+        </>
+      ) : (
+        <p className="mt-2 text-sm text-zinc-600">
+          Aucune relance urgente — tout est à jour 🎉
+        </p>
+      )}
+      <FocusLink />
+    </article>
+  );
+}
+
+function FocusList({ deals }: { deals: DealWithContact[] }) {
+  return (
+    <ul className="mt-4 space-y-2">
+      {deals.slice(0, 5).map((deal) => (
+        <li
+          key={deal.id}
+          className="flex items-center justify-between gap-3 rounded-md border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm"
+        >
+          <span className="min-w-0 truncate">
+            <span className="font-medium text-zinc-950">{deal.title}</span>
+            <span className="text-zinc-500">
+              {" "}
+              — {deal.contacts?.name ?? "Contact non renseigné"}
+            </span>
+          </span>
+          <span className="shrink-0 text-zinc-500">{getDaysSinceLastUpdate(deal)} j</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function FocusLink() {
+  return (
+    <Link
+      href="/dashboard/pipeline"
+      className="mt-4 inline-flex h-10 items-center justify-center rounded-md bg-zinc-950 px-4 text-sm font-medium text-white transition hover:bg-zinc-800"
+    >
+      Ouvrir le pipeline
+    </Link>
   );
 }
