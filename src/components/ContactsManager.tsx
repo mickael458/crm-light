@@ -29,17 +29,15 @@ export function ContactsManager({ initialContacts }: ContactsManagerProps) {
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [confirmingDeleteId, setConfirmingDeleteId] = useState<string | null>(null);
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
 
-  async function handleDelete(id: string, contactName: string) {
-    if (!window.confirm(`Supprimer le contact « ${contactName} » ? Cette action est définitive.`)) {
-      return;
-    }
-
+  async function handleDelete(id: string) {
     setError(null);
     setDeletingId(id);
     const result = await deleteContact(id);
     setDeletingId(null);
+    setConfirmingDeleteId(null);
 
     if (result.error) {
       setError(result.error);
@@ -224,14 +222,34 @@ export function ContactsManager({ initialContacts }: ContactsManagerProps) {
                         >
                           Modifier
                         </button>
-                        <button
-                          type="button"
-                          onClick={() => handleDelete(contact.id, contact.name)}
-                          disabled={deletingId === contact.id}
-                          className="text-sm font-medium text-red-600 transition hover:text-red-700 disabled:opacity-50"
-                        >
-                          {deletingId === contact.id ? "Suppression..." : "Supprimer"}
-                        </button>
+                        {confirmingDeleteId === contact.id ? (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => handleDelete(contact.id)}
+                              disabled={deletingId === contact.id}
+                              className="text-sm font-medium text-red-600 transition hover:text-red-700 disabled:opacity-50"
+                            >
+                              {deletingId === contact.id ? "Suppression..." : "Confirmer"}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setConfirmingDeleteId(null)}
+                              disabled={deletingId === contact.id}
+                              className="text-sm font-medium text-zinc-500 transition hover:text-zinc-800 disabled:opacity-50"
+                            >
+                              Annuler
+                            </button>
+                          </>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => setConfirmingDeleteId(contact.id)}
+                            className="text-sm font-medium text-red-600 transition hover:text-red-700"
+                          >
+                            Supprimer
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>
