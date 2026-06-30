@@ -123,6 +123,12 @@ export default async function DashboardPage() {
               >
                 Gérer les contacts
               </Link>
+              <Link
+                href="/dashboard/settings"
+                className="inline-flex h-11 items-center justify-center rounded-md border border-zinc-300 px-4 text-sm font-medium text-zinc-800 transition hover:bg-zinc-100"
+              >
+                Paramètres
+              </Link>
             </div>
           </article>
         </div>
