@@ -31,6 +31,16 @@ export function ContactsManager({ initialContacts }: ContactsManagerProps) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [confirmingDeleteId, setConfirmingDeleteId] = useState<string | null>(null);
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
+  const [search, setSearch] = useState("");
+
+  const normalizedSearch = search.trim().toLowerCase();
+  const filteredContacts = normalizedSearch
+    ? contacts.filter((contact) =>
+        [contact.name, contact.company, contact.email, contact.phone].some((field) =>
+          (field ?? "").toLowerCase().includes(normalizedSearch),
+        ),
+      )
+    : contacts;
 
   async function handleDelete(id: string) {
     setError(null);
@@ -165,11 +175,21 @@ export function ContactsManager({ initialContacts }: ContactsManagerProps) {
       </div>
 
       <section className="rounded-lg border border-zinc-200 bg-white shadow-sm">
-        <div className="border-b border-zinc-200 px-5 py-4">
-          <h2 className="text-lg font-semibold text-zinc-950">Contacts</h2>
-          <p className="mt-1 text-sm text-zinc-600">
-            {contacts.length} {contacts.length > 1 ? "contacts" : "contact"}
-          </p>
+        <div className="flex flex-col gap-3 border-b border-zinc-200 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="text-lg font-semibold text-zinc-950">Contacts</h2>
+            <p className="mt-1 text-sm text-zinc-600">
+              {filteredContacts.length} {filteredContacts.length > 1 ? "contacts" : "contact"}
+              {normalizedSearch ? ` sur ${contacts.length}` : ""}
+            </p>
+          </div>
+          <input
+            type="search"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Rechercher (nom, société, email...)"
+            className="h-10 w-full rounded-md border border-zinc-300 px-3 text-sm text-zinc-950 outline-none focus:border-zinc-900 focus:ring-2 focus:ring-zinc-200 sm:w-72"
+          />
         </div>
 
         <div className="overflow-x-auto">
@@ -186,7 +206,7 @@ export function ContactsManager({ initialContacts }: ContactsManagerProps) {
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-100">
-              {contacts.map((contact) => {
+              {filteredContacts.map((contact) => {
                 const contactStatus = contact.status ?? "froid";
 
                 return (
@@ -255,10 +275,12 @@ export function ContactsManager({ initialContacts }: ContactsManagerProps) {
                   </tr>
                 );
               })}
-              {contacts.length === 0 ? (
+              {filteredContacts.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="px-5 py-10 text-center text-sm text-zinc-500">
-                    Aucun contact pour le moment.
+                    {normalizedSearch
+                      ? "Aucun contact ne correspond à ta recherche."
+                      : "Aucun contact pour le moment."}
                   </td>
                 </tr>
               ) : null}
