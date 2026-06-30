@@ -52,6 +52,12 @@ ALTER TABLE public.profiles ADD CONSTRAINT profiles_onboarding_delay_check CHECK
 ALTER TABLE public.deals ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
 UPDATE public.deals SET updated_at = COALESCE(updated_at, created_at, NOW()) WHERE updated_at IS NULL;
 
+-- Horloge de relance : last_contacted_at n'avance QUE sur une relance explicite
+-- ("J'ai relancé"), jamais via une simple édition. updated_at reste un horodatage
+-- technique. Le score de chaleur (deal-heat.ts) se base sur last_contacted_at.
+ALTER TABLE public.deals ADD COLUMN IF NOT EXISTS last_contacted_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+UPDATE public.deals SET last_contacted_at = COALESCE(last_contacted_at, updated_at, created_at, NOW()) WHERE last_contacted_at IS NULL;
+
 DROP POLICY IF EXISTS "Users see own contacts" ON public.contacts;
 CREATE POLICY "Users see own contacts" ON public.contacts
 FOR ALL USING (auth.uid() = user_id)
@@ -70,6 +76,24 @@ DROP POLICY IF EXISTS "Users update own profile" ON public.profiles;
 CREATE POLICY "Users update own profile" ON public.profiles
 FOR UPDATE USING (auth.uid() = id)
 WITH CHECK (auth.uid() = id);
+
+-- Securite (critique) : subscribed / subscription_id ne doivent etre ecrits QUE par le
+-- webhook Stripe (role service_role). Sans restriction de colonne, n'importe quel inscrit
+-- peut s'auto-declarer abonne depuis la console du navigateur
+-- (supabase.from('profiles').update({ subscribed: true })) car la policy RLS l'autorise
+-- a modifier sa propre ligne. Le privilege colonne SQL est verifie AVANT la policy RLS :
+-- on retire l'UPDATE global au role authenticated et on ne re-accorde que les colonnes
+-- d'onboarding. service_role n'est pas affecte (il garde tous les privileges).
+REVOKE UPDATE ON public.profiles FROM authenticated;
+GRANT UPDATE (
+  onboarding_activity,
+  onboarding_cycle,
+  onboarding_delay,
+  onboarding_goal,
+  onboarding_channels,
+  onboarding_summary,
+  onboarding_done
+) ON public.profiles TO authenticated;
 
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER
@@ -92,12 +116,15 @@ CREATE TRIGGER on_auth_user_created
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
 CREATE OR REPLACE FUNCTION public.set_deal_updated_at()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SET search_path = public
+AS $$
 BEGIN
   NEW.updated_at = NOW();
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$;
 
 DROP TRIGGER IF EXISTS set_deal_updated_at ON public.deals;
 CREATE TRIGGER set_deal_updated_at

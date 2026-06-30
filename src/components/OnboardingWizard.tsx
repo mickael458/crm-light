@@ -72,9 +72,11 @@ export function OnboardingWizard({ userId }: OnboardingWizardProps) {
   const selectedActivity = useMemo(() => activities.find((item) => item.value === activity), [activity]);
   const selectedCycle = useMemo(() => cycles.find((item) => item.value === cycle), [cycle]);
   const selectedGoal = useMemo(() => goals.find((item) => item.value === goal), [goal]);
-  const channelLabels = channels
-    .map((value) => channelOptions.find((option) => option.value === value)?.label ?? value)
-    .join(", ");
+  const channelLabels = channels.length
+    ? channels
+        .map((value) => channelOptions.find((option) => option.value === value)?.label ?? value)
+        .join(", ")
+    : "aucun canal";
   const summaryLabel = summaryOptions.find((option) => option.value === summary)?.label ?? "";
 
   function toggleChannel(channel: string) {
@@ -85,13 +87,21 @@ export function OnboardingWizard({ userId }: OnboardingWizardProps) {
     setIsSaving(true);
     setError(null);
     const supabase = createClientSupabase();
-    const { error: updateError } = await supabase
+    const { data, error: updateError } = await supabase
       .from("profiles")
       .update({ onboarding_activity: activity, onboarding_cycle: cycle, onboarding_delay: delay, onboarding_goal: goal, onboarding_channels: channels, onboarding_summary: summary, onboarding_done: true })
-      .eq("id", userId);
+      .eq("id", userId)
+      .select("id")
+      .maybeSingle();
     setIsSaving(false);
     if (updateError) {
       setError(updateError.message);
+      return;
+    }
+    if (!data) {
+      // 0 ligne touchee : profil absent. On le signale au lieu d'afficher "pret"
+      // puis de boucler entre /dashboard et /onboarding.
+      setError("Ton profil est introuvable. Reconnecte-toi puis réessaie.");
       return;
     }
     setIsComplete(true);

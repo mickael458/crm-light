@@ -41,6 +41,8 @@ export async function POST(request: NextRequest) {
     }
 
 
+    const supabaseAdmin = createSupabaseAdmin();
+
     if (event.type === "checkout.session.completed") {
       const session = event.data.object;
       const userId = session.metadata?.user_id;
@@ -54,18 +56,50 @@ export async function POST(request: NextRequest) {
         return new Response("OK", { status: 200 });
       }
 
-
-      const supabaseAdmin = createSupabaseAdmin();
+      // upsert et non update : si la ligne profiles n'existe pas (trigger absent,
+      // compte anterieur), un update ne toucherait 0 ligne, renverrait 200, et le
+      // client aurait paye sans etre active.
       const { error } = await supabaseAdmin
         .from("profiles")
-        .update({
-          subscribed: true,
-          subscription_id: subscriptionId,
-        })
-        .eq("id", userId);
+        .upsert(
+          { id: userId, subscribed: true, subscription_id: subscriptionId },
+          { onConflict: "id" },
+        );
 
       if (error) {
         console.error("Webhook Stripe : erreur Supabase profiles", error);
+        return Response.json({ error: error.message }, { status: 500 });
+      }
+    }
+
+    // Cycle de vie : annulation, impaye (past_due), fin d'essai non payee, etc.
+    // Sans ca, subscribed reste true a vie et l'etat diverge de la verite Stripe.
+    if (
+      event.type === "customer.subscription.updated" ||
+      event.type === "customer.subscription.deleted"
+    ) {
+      const subscription = event.data.object as Stripe.Subscription;
+      const userId = subscription.metadata?.user_id ?? null;
+      const isActive =
+        event.type !== "customer.subscription.deleted" &&
+        (subscription.status === "active" || subscription.status === "trialing");
+
+      const fields = {
+        subscribed: isActive,
+        subscription_id: isActive ? subscription.id : null,
+      };
+
+      const { error } = userId
+        ? await supabaseAdmin
+            .from("profiles")
+            .upsert({ id: userId, ...fields }, { onConflict: "id" })
+        : await supabaseAdmin
+            .from("profiles")
+            .update(fields)
+            .eq("subscription_id", subscription.id);
+
+      if (error) {
+        console.error("Webhook Stripe : erreur maj abonnement", error);
         return Response.json({ error: error.message }, { status: 500 });
       }
     }

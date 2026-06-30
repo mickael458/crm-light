@@ -6,6 +6,9 @@
 
 type AuthResult = {
   error?: string;
+  // Inscription : true quand Supabase exige une confirmation par email
+  // (aucune session n'est ouverte tant que le lien n'est pas cliqué).
+  needsConfirmation?: boolean;
 };
 
 function formatAuthError(error: { message: string; status?: number; code?: string }) {
@@ -41,9 +44,29 @@ export async function signUpWithPassword(
   }
 
   const supabase = createClientSupabase();
-  const { error } = await supabase.auth.signUp({ email, password });
+  const { data, error } = await supabase.auth.signUp({ email, password });
 
-  return { error: error ? formatAuthError(error) : undefined };
+  if (error) {
+    return { error: formatAuthError(error) };
+  }
+
+  // Supabase renvoie un user "obfusque" (identities vide, sans erreur) quand
+  // l'email est deja inscrit : on evite que l'utilisateur attende un mail fantome.
+  const alreadyRegistered =
+    Array.isArray(data.user?.identities) && data.user.identities.length === 0;
+  if (alreadyRegistered) {
+    return {
+      error: "Un compte existe deja avec cet email. Connecte-toi a la place.",
+    };
+  }
+
+  // Pas de session => la confirmation par email est activee cote Supabase.
+  // On ne pousse pas vers /onboarding (le proxy renverrait sur /login).
+  if (!data.session) {
+    return { needsConfirmation: true };
+  }
+
+  return {};
 }
 
 // Ferme la session locale et Supabase de l'utilisateur courant.
