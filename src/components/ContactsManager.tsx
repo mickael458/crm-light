@@ -3,6 +3,7 @@
 import { FormEvent, useState } from "react";
 import type { Contact, ContactStatus } from "@/lib/database.types";
 import { addContact } from "@/lib/contacts";
+import { ContactImport } from "@/components/ContactImport";
 import { formatDate, getStatusLabel } from "@/lib/format";
 
 const statusBadgeClass: Record<ContactStatus, string> = {
@@ -55,6 +56,12 @@ export function ContactsManager({ initialContacts }: ContactsManagerProps) {
 
   return (
     <div className="grid gap-6 lg:grid-cols-[360px_1fr]">
+      <div className="flex flex-col gap-6">
+      <ContactImport
+        onImported={(imported) =>
+          setContacts((currentContacts) => [...imported, ...currentContacts])
+        }
+      />
       <form
         onSubmit={handleSubmit}
         className="h-fit rounded-lg border border-zinc-200 bg-white p-5 shadow-sm"
@@ -136,6 +143,7 @@ export function ContactsManager({ initialContacts }: ContactsManagerProps) {
           {isSubmitting ? "Ajout..." : "Ajouter le contact"}
         </button>
       </form>
+      </div>
 
       <section className="rounded-lg border border-zinc-200 bg-white shadow-sm">
         <div className="border-b border-zinc-200 px-5 py-4">
