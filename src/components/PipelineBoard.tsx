@@ -3,6 +3,7 @@
 import { DragDropContext, type DropResult } from "@hello-pangea/dnd";
 import { useMemo, useState } from "react";
 import { AddDealModal } from "@/components/AddDealModal";
+import { EditDealModal } from "@/components/EditDealModal";
 import { KanbanColumn } from "@/components/KanbanColumn";
 import type { Contact, DealStage, DealWithContact } from "@/lib/database.types";
 import { getStageLabel } from "@/lib/format";
@@ -18,6 +19,7 @@ export function PipelineBoard({ initialDeals, contacts, followUpDelayDays }: Pip
   const [deals, setDeals] = useState(initialDeals);
   const [modalStage, setModalStage] = useState<DealStage>("prospect");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingDeal, setEditingDeal] = useState<DealWithContact | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const dealsByStage = useMemo(() => {
@@ -89,6 +91,7 @@ export function PipelineBoard({ initialDeals, contacts, followUpDelayDays }: Pip
               title={getStageLabel(stage)}
               deals={dealsByStage[stage]}
               onAddDeal={openAddDeal}
+              onEditDeal={setEditingDeal}
               followUpDelayDays={followUpDelayDays}
             />
           ))}
@@ -101,6 +104,22 @@ export function PipelineBoard({ initialDeals, contacts, followUpDelayDays }: Pip
           initialStage={modalStage}
           onClose={() => setIsModalOpen(false)}
           onDealCreated={(deal) => setDeals((currentDeals) => [deal, ...currentDeals])}
+        />
+      ) : null}
+
+      {editingDeal ? (
+        <EditDealModal
+          deal={editingDeal}
+          contacts={contacts}
+          onClose={() => setEditingDeal(null)}
+          onUpdated={(updated) =>
+            setDeals((currentDeals) =>
+              currentDeals.map((item) => (item.id === updated.id ? updated : item)),
+            )
+          }
+          onDeleted={(dealId) =>
+            setDeals((currentDeals) => currentDeals.filter((item) => item.id !== dealId))
+          }
         />
       ) : null}
     </>

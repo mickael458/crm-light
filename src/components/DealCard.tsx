@@ -20,9 +20,10 @@ const stageBadgeClass = {
 type DealCardProps = {
   deal: DealWithContact;
   followUpDelayDays: number;
+  onEdit: (deal: DealWithContact) => void;
 };
 
-export function DealCard({ deal, followUpDelayDays }: DealCardProps) {
+export function DealCard({ deal, followUpDelayDays, onEdit }: DealCardProps) {
   const stage = deal.stage ?? "prospect";
   const heat = getDealHeat(deal, followUpDelayDays);
   const heatIndicator = heatConfig[heat];
@@ -54,6 +55,15 @@ export function DealCard({ deal, followUpDelayDays }: DealCardProps) {
           {formatCurrency(Number(deal.amount ?? 0))}
         </span>
         <span className="text-zinc-500">{formatDate(deal.created_at)}</span>
+      </div>
+      <div className="mt-3 flex justify-end">
+        <button
+          type="button"
+          onClick={() => onEdit(deal)}
+          className="text-xs font-medium text-zinc-500 transition hover:text-zinc-900"
+        >
+          Modifier
+        </button>
       </div>
     </article>
   );

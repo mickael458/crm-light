@@ -70,6 +70,73 @@ export async function addDeal(input: DealFormInput): Promise<DealResult> {
   return { deal: data as DealWithContact };
 }
 
+// Met a jour les details d'un deal (titre, montant, contact, colonne).
+export async function updateDeal(dealId: string, input: DealFormInput): Promise<DealResult> {
+  if (!hasSupabaseConfig()) {
+    return { error: getSupabaseConfigError() };
+  }
+
+  const supabase = createClientSupabase();
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    return { error: "Connecte-toi avant de modifier un deal." };
+  }
+
+  const amount = input.amount ? Number(input.amount) : null;
+
+  if (amount !== null && Number.isNaN(amount)) {
+    return { error: "Le montant doit etre un nombre valide." };
+  }
+
+  const { data, error } = await supabase
+    .from("deals")
+    .update({
+      title: input.title.trim(),
+      amount,
+      contact_id: input.contactId || null,
+      stage: input.stage,
+    })
+    .eq("id", dealId)
+    .eq("user_id", user.id)
+    .select("*, contacts(id, name, company, email)")
+    .single();
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  return { deal: data as DealWithContact };
+}
+
+// Supprime un deal de l'utilisateur connecte.
+export async function deleteDeal(dealId: string): Promise<{ error?: string }> {
+  if (!hasSupabaseConfig()) {
+    return { error: getSupabaseConfigError() };
+  }
+
+  const supabase = createClientSupabase();
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    return { error: "Connecte-toi avant de supprimer un deal." };
+  }
+
+  const { error } = await supabase
+    .from("deals")
+    .delete()
+    .eq("id", dealId)
+    .eq("user_id", user.id);
+
+  return { error: error?.message };
+}
+
 // Met a jour la colonne d'un deal apres un glisser-deposer.
 export async function updateDealStage(dealId: string, stage: DealStage) {
   if (!hasSupabaseConfig()) {
