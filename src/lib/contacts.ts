@@ -121,16 +121,27 @@ export async function addContactsBulk(
     status: input.status,
   }));
 
-  const { data, error } = await supabase
-    .from("contacts")
-    .insert(payload)
-    .select();
+  // Insertion par lots : un gros collage (plusieurs milliers de lignes) en un seul
+  // insert peut depasser les limites Supabase. On decoupe pour rester robuste.
+  const BATCH_SIZE = 500;
+  const inserted: Contact[] = [];
 
-  if (error) {
-    return { error: error.message };
+  for (let i = 0; i < payload.length; i += BATCH_SIZE) {
+    const { data, error } = await supabase
+      .from("contacts")
+      .insert(payload.slice(i, i + BATCH_SIZE))
+      .select();
+
+    if (error) {
+      return { error: error.message };
+    }
+
+    if (data) {
+      inserted.push(...data);
+    }
   }
 
-  return { contacts: data ?? [] };
+  return { contacts: inserted };
 }
 
 // Ajoute un contact pour l'utilisateur connecte dans Supabase.

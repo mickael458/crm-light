@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 // La landing page ("/") a sa propre navigation : on masque la nav globale dessus.
 const hiddenOn = ["/"];
 
-export function SiteHeader() {
+export function SiteHeader({ isAuthenticated = false }: { isAuthenticated?: boolean }) {
   const pathname = usePathname();
 
   if (hiddenOn.includes(pathname)) {
@@ -16,7 +16,7 @@ export function SiteHeader() {
   return (
     <header className="border-b border-zinc-200 bg-white">
       <nav className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
-        <Link href="/" className="flex items-center gap-2">
+        <Link href={isAuthenticated ? "/dashboard" : "/"} className="flex items-center gap-2">
           <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand text-white">
             <svg
               className="h-4 w-4"
@@ -34,19 +34,42 @@ export function SiteHeader() {
             crm<span className="text-brand">·</span>light
           </span>
         </Link>
-        <div className="flex flex-wrap gap-4 text-sm font-medium text-zinc-600">
-          <Link href="/dashboard" className="transition hover:text-brand">
-            Dashboard
-          </Link>
-          <Link href="/dashboard/pipeline" className="transition hover:text-brand">
-            Pipeline
-          </Link>
-          <Link href="/dashboard/contacts" className="transition hover:text-brand">
-            Contacts
-          </Link>
-          <Link href="/pricing" className="transition hover:text-brand">
-            Tarifs
-          </Link>
+        <div className="flex flex-wrap items-center gap-4 text-sm font-medium text-zinc-600">
+          {isAuthenticated ? (
+            [
+              { href: "/dashboard", label: "Dashboard" },
+              { href: "/dashboard/pipeline", label: "Pipeline" },
+              { href: "/dashboard/contacts", label: "Contacts" },
+              { href: "/pricing", label: "Tarifs" },
+            ].map((item) => {
+              const active = pathname === item.href;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  aria-current={active ? "page" : undefined}
+                  className={`transition hover:text-brand ${active ? "font-semibold text-brand" : ""}`}
+                >
+                  {item.label}
+                </Link>
+              );
+            })
+          ) : (
+            <>
+              <Link href="/pricing" className="transition hover:text-brand">
+                Tarifs
+              </Link>
+              <Link href="/login" className="transition hover:text-brand">
+                Connexion
+              </Link>
+              <Link
+                href="/register"
+                className="inline-flex h-9 items-center rounded-md bg-zinc-950 px-3 font-semibold text-white transition hover:bg-zinc-800"
+              >
+                S’inscrire
+              </Link>
+            </>
+          )}
         </div>
       </nav>
     </header>

@@ -1,8 +1,9 @@
 ﻿"use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useRef, useState } from "react";
 import type { Contact, ContactStatus } from "@/lib/database.types";
 import { addContact, deleteContact } from "@/lib/contacts";
+import { countDealsForContact } from "@/lib/deals";
 import { ContactImport } from "@/components/ContactImport";
 import { EditContactModal } from "@/components/EditContactModal";
 import { formatDate, getStatusLabel } from "@/lib/format";
@@ -32,6 +33,26 @@ export function ContactsManager({ initialContacts }: ContactsManagerProps) {
   const [confirmingDeleteId, setConfirmingDeleteId] = useState<string | null>(null);
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
   const [search, setSearch] = useState("");
+  const [linkedDealCount, setLinkedDealCount] = useState<number | null>(null);
+  const confirmingRef = useRef<string | null>(null);
+
+  async function startDeleteConfirm(contact: Contact) {
+    setError(null);
+    setLinkedDealCount(null);
+    setConfirmingDeleteId(contact.id);
+    confirmingRef.current = contact.id;
+    const count = await countDealsForContact(contact.id);
+    // Ne pose le compte que s'il concerne toujours le contact en cours de confirmation.
+    if (confirmingRef.current === contact.id) {
+      setLinkedDealCount(count);
+    }
+  }
+
+  function cancelDeleteConfirm() {
+    confirmingRef.current = null;
+    setConfirmingDeleteId(null);
+    setLinkedDealCount(null);
+  }
 
   const normalizedSearch = search.trim().toLowerCase();
   const filteredContacts = normalizedSearch
@@ -48,6 +69,8 @@ export function ContactsManager({ initialContacts }: ContactsManagerProps) {
     const result = await deleteContact(id);
     setDeletingId(null);
     setConfirmingDeleteId(null);
+    confirmingRef.current = null;
+    setLinkedDealCount(null);
 
     if (result.error) {
       setError(result.error);
@@ -244,6 +267,13 @@ export function ContactsManager({ initialContacts }: ContactsManagerProps) {
                         </button>
                         {confirmingDeleteId === contact.id ? (
                           <>
+                            <span className="text-xs text-zinc-500">
+                              {linkedDealCount === null
+                                ? "Vérification..."
+                                : linkedDealCount > 0
+                                  ? `${linkedDealCount} deal${linkedDealCount > 1 ? "s" : ""} détaché${linkedDealCount > 1 ? "s" : ""}`
+                                  : "Aucun deal lié"}
+                            </span>
                             <button
                               type="button"
                               onClick={() => handleDelete(contact.id)}
@@ -254,7 +284,7 @@ export function ContactsManager({ initialContacts }: ContactsManagerProps) {
                             </button>
                             <button
                               type="button"
-                              onClick={() => setConfirmingDeleteId(null)}
+                              onClick={cancelDeleteConfirm}
                               disabled={deletingId === contact.id}
                               className="text-sm font-medium text-zinc-500 transition hover:text-zinc-800 disabled:opacity-50"
                             >
@@ -264,7 +294,7 @@ export function ContactsManager({ initialContacts }: ContactsManagerProps) {
                         ) : (
                           <button
                             type="button"
-                            onClick={() => setConfirmingDeleteId(contact.id)}
+                            onClick={() => startDeleteConfirm(contact)}
                             className="text-sm font-medium text-red-600 transition hover:text-red-700"
                           >
                             Supprimer

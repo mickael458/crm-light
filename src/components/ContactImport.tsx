@@ -90,6 +90,23 @@ function rowToContact(row: string[], mapping: Mapping): ContactFormInput {
   };
 }
 
+// Excel FR exporte souvent en Windows-1252 : decode en UTF-8 par defaut donnerait du
+// mojibake sur les accents. On sniffe le BOM, on tente UTF-8 strict, et on retombe sur
+// Windows-1252 en cas d'echec (sans casser les vrais fichiers UTF-8).
+async function readCsvText(file: File): Promise<string> {
+  const bytes = new Uint8Array(await file.arrayBuffer());
+
+  if (bytes.length >= 3 && bytes[0] === 0xef && bytes[1] === 0xbb && bytes[2] === 0xbf) {
+    return new TextDecoder("utf-8").decode(bytes.subarray(3));
+  }
+
+  try {
+    return new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+  } catch {
+    return new TextDecoder("windows-1252").decode(bytes);
+  }
+}
+
 export function ContactImport({ onImported }: ContactImportProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [rawRows, setRawRows] = useState<string[][]>([]);
@@ -116,26 +133,32 @@ export function ContactImport({ onImported }: ContactImportProps) {
       return;
     }
 
-    Papa.parse<string[]>(file, {
-      skipEmptyLines: true,
-      complete: (results) => {
-        const data = (results.data as string[][]).filter(
-          (row) => row.length > 0 && row.some((value) => (value ?? "").trim() !== ""),
-        );
+    readCsvText(file)
+      .then((text) => {
+        Papa.parse<string[]>(text, {
+          skipEmptyLines: true,
+          complete: (results) => {
+            const data = (results.data as string[][]).filter(
+              (row) => row.length > 0 && row.some((value) => (value ?? "").trim() !== ""),
+            );
 
-        if (data.length === 0) {
-          setError("Fichier vide ou illisible. Utilise un fichier .csv.");
-          return;
-        }
+            if (data.length === 0) {
+              setError("Fichier vide ou illisible. Utilise un fichier .csv.");
+              return;
+            }
 
-        setRawRows(data);
-        setHasHeader(true);
-        setMapping(detectMapping(data, true));
-      },
-      error: () => {
+            setRawRows(data);
+            setHasHeader(true);
+            setMapping(detectMapping(data, true));
+          },
+          error: () => {
+            setError("Impossible de lire le fichier. Utilise un fichier .csv (Excel : Enregistrer sous → CSV).");
+          },
+        });
+      })
+      .catch(() => {
         setError("Impossible de lire le fichier. Utilise un fichier .csv (Excel : Enregistrer sous → CSV).");
-      },
-    });
+      });
   }
 
   function changeHasHeader(next: boolean) {
@@ -167,14 +190,28 @@ export function ContactImport({ onImported }: ContactImportProps) {
     setError(null);
     setSuccess(null);
 
-    const rows = dataRows
+    const parsed = dataRows
       .map((row) => rowToContact(row, mapping))
       .filter((row) => row.name.length > 0);
 
-    if (rows.length === 0) {
+    if (parsed.length === 0) {
       setError("Aucune ligne avec un nom à importer. Vérifie la colonne « Nom ».");
       return;
     }
+
+    // Dedoublonnage du lot : par email si present, sinon par nom + entreprise.
+    const seen = new Set<string>();
+    const rows = parsed.filter((row) => {
+      const key = row.email.trim()
+        ? `e:${row.email.trim().toLowerCase()}`
+        : `n:${row.name.toLowerCase()}|${row.company.trim().toLowerCase()}`;
+      if (seen.has(key)) {
+        return false;
+      }
+      seen.add(key);
+      return true;
+    });
+    const duplicates = parsed.length - rows.length;
 
     setIsImporting(true);
     const result = await addContactsBulk(rows);
@@ -186,7 +223,14 @@ export function ContactImport({ onImported }: ContactImportProps) {
     }
 
     onImported(result.contacts);
-    setSuccess(`${result.contacts.length} contact${result.contacts.length > 1 ? "s" : ""} importé${result.contacts.length > 1 ? "s" : ""}.`);
+    const count = result.contacts.length;
+    setSuccess(
+      `${count} contact${count > 1 ? "s" : ""} importé${count > 1 ? "s" : ""}` +
+        (duplicates > 0
+          ? ` (${duplicates} doublon${duplicates > 1 ? "s" : ""} ignoré${duplicates > 1 ? "s" : ""})`
+          : "") +
+        ".",
+    );
     reset();
   }
 

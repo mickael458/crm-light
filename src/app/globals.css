@@ -14,7 +14,6 @@
   --color-brand-dark: var(--brand-dark);
   --font-sans: var(--font-app-sans);
   --font-display: var(--font-app-display);
-  --font-mono: var(--font-geist-mono);
 }
 
 body {

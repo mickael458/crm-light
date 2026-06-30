@@ -2,8 +2,9 @@
 
 import { FormEvent, useState } from "react";
 import type { Contact, DealStage, DealWithContact } from "@/lib/database.types";
-import { addDeal, visiblePipelineStages } from "@/lib/deals";
+import { addDeal, selectablePipelineStages } from "@/lib/deals";
 import { getStageLabel } from "@/lib/format";
+import { Modal } from "@/components/Modal";
 
 type AddDealModalProps = {
   contacts: Contact[];
@@ -48,27 +49,12 @@ export function AddDealModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/30 px-4 py-6 sm:items-center">
-      <form
-        onSubmit={handleSubmit}
-        className="w-full max-w-lg rounded-lg bg-white p-6 shadow-xl"
-      >
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <h2 className="text-xl font-semibold text-zinc-950">Ajouter un deal</h2>
-            <p className="mt-1 text-sm text-zinc-600">
-              Crée une opportunité dans ton pipeline commercial.
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-md px-2 py-1 text-sm text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-900"
-          >
-            Fermer
-          </button>
-        </div>
-
+    <Modal
+      title="Ajouter un deal"
+      description="Crée une opportunité dans ton pipeline commercial."
+      onClose={onClose}
+    >
+      <form onSubmit={handleSubmit}>
         <div className="mt-6 grid gap-4">
           <label className="space-y-2">
             <span className="text-sm font-medium text-zinc-800">Titre</span>
@@ -76,7 +62,7 @@ export function AddDealModal({
               value={title}
               onChange={(event) => setTitle(event.target.value)}
               className="h-11 w-full rounded-md border border-zinc-300 px-3 text-sm text-zinc-950 outline-none focus:border-zinc-900 focus:ring-2 focus:ring-zinc-200"
-              placeholder="Ex: Accompagnement strategie"
+              placeholder="Ex : Accompagnement stratégie"
             />
           </label>
 
@@ -110,13 +96,13 @@ export function AddDealModal({
           </label>
 
           <label className="space-y-2">
-            <span className="text-sm font-medium text-zinc-800">Colonne</span>
+            <span className="text-sm font-medium text-zinc-800">Statut</span>
             <select
               value={stage}
               onChange={(event) => setStage(event.target.value as DealStage)}
               className="h-11 w-full rounded-md border border-zinc-300 px-3 text-sm text-zinc-950 outline-none focus:border-zinc-900 focus:ring-2 focus:ring-zinc-200"
             >
-              {visiblePipelineStages.map((stageOption) => (
+              {selectablePipelineStages.map((stageOption) => (
                 <option key={stageOption} value={stageOption}>
                   {getStageLabel(stageOption)}
                 </option>
@@ -148,7 +134,7 @@ export function AddDealModal({
           </button>
         </div>
       </form>
-    </div>
+    </Modal>
   );
 }
 

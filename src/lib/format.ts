@@ -26,8 +26,8 @@ export function getStageLabel(stage: DealStage) {
   const labels: Record<DealStage, string> = {
     prospect: "Prospect",
     discussion: "En discussion",
-    devis: "Devis envoye",
-    gagne: "Gagne",
+    devis: "Devis envoyé",
+    gagne: "Gagné",
     perdu: "Perdu",
   };
 
@@ -37,7 +37,7 @@ export function getStageLabel(stage: DealStage) {
 export function getStatusLabel(status: ContactStatus | null) {
   const labels: Record<ContactStatus, string> = {
     chaud: "Chaud",
-    tiede: "Tiede",
+    tiede: "Tiède",
     froid: "Froid",
   };
 
