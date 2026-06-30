@@ -19,6 +19,48 @@ export type ContactsBulkResult = {
   error?: string;
 };
 
+// Met a jour un contact existant de l'utilisateur connecte.
+export async function updateContact(
+  id: string,
+  input: ContactFormInput,
+): Promise<ContactResult> {
+  if (!hasSupabaseConfig()) {
+    return { error: getSupabaseConfigError() };
+  }
+
+  const supabase = createClientSupabase();
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    return { error: "Connecte-toi avant de modifier un contact." };
+  }
+
+  const payload = {
+    name: input.name.trim(),
+    company: input.company.trim() || null,
+    email: input.email.trim() || null,
+    phone: input.phone.trim() || null,
+    status: input.status,
+  };
+
+  const { data, error } = await supabase
+    .from("contacts")
+    .update(payload)
+    .eq("id", id)
+    .eq("user_id", user.id)
+    .select()
+    .single();
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  return { contact: data };
+}
+
 // Supprime un contact de l'utilisateur connecte.
 export async function deleteContact(id: string): Promise<{ error?: string }> {
   if (!hasSupabaseConfig()) {

@@ -4,6 +4,7 @@ import { FormEvent, useState } from "react";
 import type { Contact, ContactStatus } from "@/lib/database.types";
 import { addContact, deleteContact } from "@/lib/contacts";
 import { ContactImport } from "@/components/ContactImport";
+import { EditContactModal } from "@/components/EditContactModal";
 import { formatDate, getStatusLabel } from "@/lib/format";
 
 const statusBadgeClass: Record<ContactStatus, string> = {
@@ -28,6 +29,7 @@ export function ContactsManager({ initialContacts }: ContactsManagerProps) {
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [editingContact, setEditingContact] = useState<Contact | null>(null);
 
   async function handleDelete(id: string, contactName: string) {
     if (!window.confirm(`Supprimer le contact « ${contactName} » ? Cette action est définitive.`)) {
@@ -214,14 +216,23 @@ export function ContactsManager({ initialContacts }: ContactsManagerProps) {
                       {formatDate(contact.created_at)}
                     </td>
                     <td className="whitespace-nowrap px-5 py-4 text-right">
-                      <button
-                        type="button"
-                        onClick={() => handleDelete(contact.id, contact.name)}
-                        disabled={deletingId === contact.id}
-                        className="text-sm font-medium text-red-600 transition hover:text-red-700 disabled:opacity-50"
-                      >
-                        {deletingId === contact.id ? "Suppression..." : "Supprimer"}
-                      </button>
+                      <div className="flex justify-end gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setEditingContact(contact)}
+                          className="text-sm font-medium text-zinc-700 transition hover:text-zinc-950"
+                        >
+                          Modifier
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(contact.id, contact.name)}
+                          disabled={deletingId === contact.id}
+                          className="text-sm font-medium text-red-600 transition hover:text-red-700 disabled:opacity-50"
+                        >
+                          {deletingId === contact.id ? "Suppression..." : "Supprimer"}
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );
@@ -237,6 +248,18 @@ export function ContactsManager({ initialContacts }: ContactsManagerProps) {
           </table>
         </div>
       </section>
+
+      {editingContact ? (
+        <EditContactModal
+          contact={editingContact}
+          onClose={() => setEditingContact(null)}
+          onUpdated={(updated) =>
+            setContacts((currentContacts) =>
+              currentContacts.map((item) => (item.id === updated.id ? updated : item)),
+            )
+          }
+        />
+      ) : null}
     </div>
   );
 }
