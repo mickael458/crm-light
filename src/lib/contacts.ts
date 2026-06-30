@@ -19,6 +19,35 @@ export type ContactsBulkResult = {
   error?: string;
 };
 
+// Supprime un contact de l'utilisateur connecte.
+export async function deleteContact(id: string): Promise<{ error?: string }> {
+  if (!hasSupabaseConfig()) {
+    return { error: getSupabaseConfigError() };
+  }
+
+  const supabase = createClientSupabase();
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    return { error: "Connecte-toi avant de supprimer un contact." };
+  }
+
+  const { error } = await supabase
+    .from("contacts")
+    .delete()
+    .eq("id", id)
+    .eq("user_id", user.id);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  return {};
+}
+
 // Insere plusieurs contacts d'un coup (import CSV) pour l'utilisateur connecte.
 export async function addContactsBulk(
   rows: ContactFormInput[],

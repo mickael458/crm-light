@@ -2,7 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import type { Contact, ContactStatus } from "@/lib/database.types";
-import { addContact } from "@/lib/contacts";
+import { addContact, deleteContact } from "@/lib/contacts";
 import { ContactImport } from "@/components/ContactImport";
 import { formatDate, getStatusLabel } from "@/lib/format";
 
@@ -27,6 +27,25 @@ export function ContactsManager({ initialContacts }: ContactsManagerProps) {
   const [status, setStatus] = useState<ContactStatus>("froid");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  async function handleDelete(id: string, contactName: string) {
+    if (!window.confirm(`Supprimer le contact « ${contactName} » ? Cette action est définitive.`)) {
+      return;
+    }
+
+    setError(null);
+    setDeletingId(id);
+    const result = await deleteContact(id);
+    setDeletingId(null);
+
+    if (result.error) {
+      setError(result.error);
+      return;
+    }
+
+    setContacts((currentContacts) => currentContacts.filter((contact) => contact.id !== id));
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -163,6 +182,7 @@ export function ContactsManager({ initialContacts }: ContactsManagerProps) {
                 <th className="px-5 py-3">Téléphone</th>
                 <th className="px-5 py-3">Statut</th>
                 <th className="px-5 py-3">Cree le</th>
+                <th className="px-5 py-3 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-100">
@@ -193,12 +213,22 @@ export function ContactsManager({ initialContacts }: ContactsManagerProps) {
                     <td className="whitespace-nowrap px-5 py-4 text-zinc-500">
                       {formatDate(contact.created_at)}
                     </td>
+                    <td className="whitespace-nowrap px-5 py-4 text-right">
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(contact.id, contact.name)}
+                        disabled={deletingId === contact.id}
+                        className="text-sm font-medium text-red-600 transition hover:text-red-700 disabled:opacity-50"
+                      >
+                        {deletingId === contact.id ? "Suppression..." : "Supprimer"}
+                      </button>
+                    </td>
                   </tr>
                 );
               })}
               {contacts.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-5 py-10 text-center text-sm text-zinc-500">
+                  <td colSpan={7} className="px-5 py-10 text-center text-sm text-zinc-500">
                     Aucun contact pour le moment.
                   </td>
                 </tr>
