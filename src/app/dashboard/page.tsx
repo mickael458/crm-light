@@ -232,16 +232,23 @@ function FocusList({ deals }: { deals: DealWithContact[] }) {
       {deals.slice(0, 5).map((deal) => (
         <li
           key={deal.id}
-          className="flex items-center justify-between gap-3 rounded-md border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm"
+          className="rounded-md border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm"
         >
-          <span className="min-w-0 truncate">
-            <span className="font-medium text-zinc-950">{deal.title}</span>
-            <span className="text-zinc-500">
-              {" "}
-              — {deal.contacts?.name ?? "Contact non renseigné"}
+          <div className="flex items-center justify-between gap-3">
+            <span className="min-w-0 truncate">
+              <span className="font-medium text-zinc-950">{deal.title}</span>
+              <span className="text-zinc-500">
+                {" "}
+                — {deal.contacts?.name ?? "Contact non renseigné"}
+              </span>
             </span>
-          </span>
-          <span className="shrink-0 text-zinc-500">{getDaysSinceLastUpdate(deal)} j</span>
+            <span className="shrink-0 text-zinc-500">{getDaysSinceLastUpdate(deal)} j</span>
+          </div>
+          {deal.context_note ? (
+            <p className="mt-1 line-clamp-2 text-xs italic text-zinc-500">
+              {deal.context_note}
+            </p>
+          ) : null}
         </li>
       ))}
     </ul>

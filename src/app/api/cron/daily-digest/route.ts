@@ -43,8 +43,11 @@ function buildDigestHtml(deals: DealWithContact[], now: Date) {
     .map((deal) => {
       const contactName = deal.contacts?.name ?? "Contact non renseigné";
       const days = getDaysSinceLastUpdate(deal, now);
+      const contextLine = deal.context_note
+        ? "<br/><em style=\"color:#52525b;font-size:13px;\">" + escapeHtml(deal.context_note) + "</em>"
+        : "";
 
-      return "<li><strong>" + escapeHtml(deal.title) + "</strong> — " + escapeHtml(contactName) + " · " + days + " jour" + (days > 1 ? "s" : "") + " sans contact</li>";
+      return "<li><strong>" + escapeHtml(deal.title) + "</strong> — " + escapeHtml(contactName) + " · " + days + " jour" + (days > 1 ? "s" : "") + " sans contact" + contextLine + "</li>";
     })
     .join("");
 

@@ -52,6 +52,10 @@ ALTER TABLE public.profiles ADD CONSTRAINT profiles_onboarding_delay_check CHECK
 ALTER TABLE public.deals ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
 UPDATE public.deals SET updated_at = COALESCE(updated_at, created_at, NOW()) WHERE updated_at IS NULL;
 
+-- Mémoire de contexte relationnel : note libre par deal et par contact (ce qui a été dit/promis).
+ALTER TABLE public.deals ADD COLUMN IF NOT EXISTS context_note TEXT;
+ALTER TABLE public.contacts ADD COLUMN IF NOT EXISTS context_note TEXT;
+
 DROP POLICY IF EXISTS "Users see own contacts" ON public.contacts;
 CREATE POLICY "Users see own contacts" ON public.contacts
 FOR ALL USING (auth.uid() = user_id)

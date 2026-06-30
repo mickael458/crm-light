@@ -22,6 +22,7 @@ export function AddDealModal({
   const [amount, setAmount] = useState("");
   const [contactId, setContactId] = useState("");
   const [stage, setStage] = useState<DealStage>(initialStage);
+  const [contextNote, setContextNote] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -35,7 +36,7 @@ export function AddDealModal({
     }
 
     setIsSubmitting(true);
-    const result = await addDeal({ title, amount, contactId, stage });
+    const result = await addDeal({ title, amount, contactId, stage, contextNote });
     setIsSubmitting(false);
 
     if (result.error || !result.deal) {
@@ -122,6 +123,19 @@ export function AddDealModal({
                 </option>
               ))}
             </select>
+          </label>
+
+          <label className="space-y-2">
+            <span className="text-sm font-medium text-zinc-800">Contexte (optionnel)</span>
+            <textarea
+              value={contextNote}
+              onChange={(event) => setContextNote(event.target.value.slice(0, 280))}
+              rows={3}
+              maxLength={280}
+              className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-950 outline-none focus:border-zinc-900 focus:ring-2 focus:ring-zinc-200"
+              placeholder="Ex. : a dit attendre la validation budget avant fin mars"
+            />
+            <span className="block text-right text-xs text-zinc-400">{contextNote.length}/280</span>
           </label>
         </div>
 

@@ -43,6 +43,11 @@ export function DealCard({ deal, followUpDelayDays, onEdit }: DealCardProps) {
           <p className="mt-1 truncate text-sm text-zinc-600">
             {getContactName(deal.contacts)}
           </p>
+          {deal.context_note ? (
+            <p className="mt-1 line-clamp-2 text-xs italic text-zinc-400">
+              {deal.context_note}
+            </p>
+          ) : null}
         </div>
         <span
           className={`mr-2 shrink-0 rounded-full px-2 py-1 text-xs font-medium ring-1 ${stageBadgeClass[stage]}`}

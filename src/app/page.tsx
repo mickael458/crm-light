@@ -282,7 +282,7 @@ export default function Home() {
             { title: "Relances automatiques", desc: "Définissez des règles simples : \"si pas de réponse après 5 jours, m'alerter\". Plus jamais un prospect qui tombe aux oubliettes.", icon: <svg fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> },
             { title: "Fiche contact complète", desc: "Historique des échanges, notes, deals liés. Tout ce que vous savez sur un client, au même endroit.", icon: <svg fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> },
             { title: "Tableau de bord clair", desc: "Pipeline en euros, relances en retard, deals gagnés ce mois. En 10 secondes vous savez où vous en êtes.", icon: <svg fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg> },
-            { title: "Devis intégrés", desc: "Créez et envoyez un devis directement depuis la fiche contact. Suivez s'il a été ouvert et relancez en un clic.", icon: <svg fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> },
+            { title: "Résumé automatique par email", desc: "Chaque matin (ou chaque semaine), recevez la liste de vos relances en retard directement par email. Pas besoin de penser à ouvrir l'app.", icon: <svg fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="22 6 12 13 2 6"/></svg> },
             { title: "100% mobile-friendly", desc: "Sur chantier, en déplacement ou entre deux RDV. Ajoutez un contact ou vérifiez vos relances depuis votre téléphone.", icon: <svg fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg> },
           ].map((f) => (
             <div key={f.title} className="lp-feature-card">
@@ -308,7 +308,7 @@ export default function Home() {
             </div>
             <div className="lp-compare-col good">
               <div className="lp-compare-col-title">crm.light</div>
-              {["Chaque relance rappelée au bon moment","Score chaud/tiède/froid par prospect","Devis suivis automatiquement","Dashboard clair en 10 secondes","Opérationnel en 5 minutes"].map(item => (
+              {["Chaque relance rappelée au bon moment","Score chaud/tiède/froid par prospect","Résumé de vos relances par email","Dashboard clair en 10 secondes","Opérationnel en 5 minutes"].map(item => (
                 <div key={item} className="lp-compare-item"><svg className="lp-good-ico" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>{item}</div>
               ))}
             </div>
@@ -352,7 +352,7 @@ export default function Home() {
           <div className="lp-pricing-price"><sup>€</sup>9<sub>/mois</sub></div>
           <p className="lp-pricing-desc">Pour les indépendants qui veulent ne plus rater une relance ou un devis. Sans engagement, annulation en 1 clic.</p>
           <ul className="lp-pricing-features">
-            {["Contacts et deals illimités","Pipeline Kanban personnalisable","Relances automatiques","Devis intégrés","Accès mobile","Hébergement Europe · RGPD","Support humain par email"].map(item => (
+            {["Contacts et deals illimités","Pipeline Kanban personnalisable","Relances automatiques","Résumé quotidien ou hebdo par email","Accès mobile","Hébergement Europe · RGPD","Support humain par email"].map(item => (
               <li key={item}><svg fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>{item}</li>
             ))}
           </ul>
