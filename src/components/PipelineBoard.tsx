@@ -7,7 +7,7 @@ import { EditDealModal } from "@/components/EditDealModal";
 import { KanbanColumn } from "@/components/KanbanColumn";
 import type { Contact, DealStage, DealWithContact } from "@/lib/database.types";
 import { getStageLabel } from "@/lib/format";
-import { updateDealStage, visiblePipelineStages } from "@/lib/deals";
+import { markDealContacted, updateDealStage, visiblePipelineStages } from "@/lib/deals";
 
 type PipelineBoardProps = {
   initialDeals: DealWithContact[];
@@ -74,6 +74,32 @@ export function PipelineBoard({ initialDeals, contacts, followUpDelayDays }: Pip
     }
   }
 
+  async function handleMarkContacted(deal: DealWithContact) {
+    setError(null);
+    const previousDeals = deals;
+    const nowIso = new Date().toISOString();
+
+    // Mise a jour optimiste : l'horloge "jours sans contact" repart a zero tout de suite.
+    setDeals((currentDeals) =>
+      currentDeals.map((item) =>
+        item.id === deal.id ? { ...item, last_contacted_at: nowIso } : item,
+      ),
+    );
+
+    const result = await markDealContacted(deal.id);
+
+    if (result.error || !result.deal) {
+      setDeals(previousDeals);
+      setError(result.error ?? "Impossible d'enregistrer la relance.");
+      return;
+    }
+
+    const updated = result.deal;
+    setDeals((currentDeals) =>
+      currentDeals.map((item) => (item.id === deal.id ? updated : item)),
+    );
+  }
+
   return (
     <>
       {error ? (
@@ -92,6 +118,7 @@ export function PipelineBoard({ initialDeals, contacts, followUpDelayDays }: Pip
               deals={dealsByStage[stage]}
               onAddDeal={openAddDeal}
               onEditDeal={setEditingDeal}
+              onMarkContacted={handleMarkContacted}
               followUpDelayDays={followUpDelayDays}
             />
           ))}

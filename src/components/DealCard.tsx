@@ -1,7 +1,7 @@
 import type { DealWithContact } from "@/lib/database.types";
 import { formatCurrency, formatDate, getStageLabel } from "@/lib/format";
 import { getContactName } from "@/lib/deals";
-import { getDealHeat } from "@/lib/deal-heat";
+import { getDealHeat, isTerminalStage } from "@/lib/deal-heat";
 
 const heatConfig = {
   urgent: { className: "bg-red-500", label: "Relance urgente" },
@@ -21,9 +21,10 @@ type DealCardProps = {
   deal: DealWithContact;
   followUpDelayDays: number;
   onEdit: (deal: DealWithContact) => void;
+  onMarkContacted: (deal: DealWithContact) => void;
 };
 
-export function DealCard({ deal, followUpDelayDays, onEdit }: DealCardProps) {
+export function DealCard({ deal, followUpDelayDays, onEdit, onMarkContacted }: DealCardProps) {
   const stage = deal.stage ?? "prospect";
   const heat = getDealHeat(deal, followUpDelayDays);
   const heatIndicator = heatConfig[heat];
@@ -56,7 +57,18 @@ export function DealCard({ deal, followUpDelayDays, onEdit }: DealCardProps) {
         </span>
         <span className="text-zinc-500">{formatDate(deal.created_at)}</span>
       </div>
-      <div className="mt-3 flex justify-end">
+      <div className="mt-3 flex items-center justify-between gap-3">
+        {isTerminalStage(stage) ? (
+          <span />
+        ) : (
+          <button
+            type="button"
+            onClick={() => onMarkContacted(deal)}
+            className="text-xs font-medium text-emerald-600 transition hover:text-emerald-700"
+          >
+            J’ai relancé
+          </button>
+        )}
         <button
           type="button"
           onClick={() => onEdit(deal)}
