@@ -61,7 +61,7 @@ export default async function DashboardPage() {
             <p className="text-sm font-medium uppercase tracking-wide text-zinc-500">
               CRM Light
             </p>
-            <h1 className="mt-2 text-3xl font-semibold text-zinc-950">
+            <h1 className="mt-2 font-display text-3xl font-bold tracking-tight text-zinc-950">
               Tableau de bord
             </h1>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-600">
@@ -218,7 +218,7 @@ function DashboardFocus({
         </>
       ) : (
         <p className="mt-2 text-sm text-zinc-600">
-          Aucune relance urgente — tout est à jour 🎉
+          Aucune relance urgente. Tout est à jour.
         </p>
       )}
       <FocusLink />

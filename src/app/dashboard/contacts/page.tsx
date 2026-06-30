@@ -21,7 +21,7 @@ export default async function ContactsPage() {
             <p className="text-sm font-medium uppercase tracking-wide text-zinc-500">
               Contacts
             </p>
-            <h1 className="mt-2 text-3xl font-semibold text-zinc-950">
+            <h1 className="mt-2 font-display text-3xl font-bold tracking-tight text-zinc-950">
               Carnet commercial
             </h1>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-600">

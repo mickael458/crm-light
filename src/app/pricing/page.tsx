@@ -16,7 +16,7 @@ export default function PricingPage() {
           <p className="text-sm font-medium uppercase tracking-wide text-zinc-500">
             Tarifs
           </p>
-          <h1 className="mt-3 text-4xl font-semibold text-zinc-950 sm:text-5xl">
+          <h1 className="mt-3 font-display text-4xl font-bold tracking-tight text-zinc-950 sm:text-5xl">
             Un plan simple pour piloter votre activité commerciale.
           </h1>
           <p className="mt-4 text-base leading-7 text-zinc-600">
