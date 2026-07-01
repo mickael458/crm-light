@@ -19,6 +19,7 @@ export function EditDealModal({ deal, contacts, onClose, onUpdated, onDeleted }:
   const [amount, setAmount] = useState(deal.amount != null ? String(deal.amount) : "");
   const [contactId, setContactId] = useState(deal.contact_id ?? "");
   const [stage, setStage] = useState<DealStage>(deal.stage ?? "prospect");
+  const [contextNote, setContextNote] = useState(deal.context_note ?? "");
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -34,7 +35,7 @@ export function EditDealModal({ deal, contacts, onClose, onUpdated, onDeleted }:
     }
 
     setIsSaving(true);
-    const result = await updateDeal(deal.id, { title, amount, contactId, stage });
+    const result = await updateDeal(deal.id, { title, amount, contactId, stage, contextNote });
     setIsSaving(false);
 
     if (result.error || !result.deal) {
@@ -123,6 +124,17 @@ export function EditDealModal({ deal, contacts, onClose, onUpdated, onDeleted }:
                 </option>
               ))}
             </select>
+          </label>
+
+          <label className="space-y-2">
+            <span className="text-sm font-medium text-zinc-800">Note de contexte</span>
+            <textarea
+              value={contextNote}
+              onChange={(event) => setContextNote(event.target.value)}
+              rows={3}
+              className="w-full resize-y rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-950 outline-none focus:border-zinc-900 focus:ring-2 focus:ring-zinc-200"
+              placeholder="Ex : attend son budget Q3, relancer après le salon…"
+            />
           </label>
         </div>
 
