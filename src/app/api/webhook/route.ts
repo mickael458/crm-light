@@ -56,39 +56,32 @@ export async function POST(request: NextRequest) {
         return new Response("OK", { status: 200 });
       }
 
-      // Course de consistance Stripe : au moment ou l'event checkout.session.completed
-      // part, la subscription n'est pas toujours rattachee a la session (session.subscription
-      // vide). On la retrouve alors via le client, dont l'abonnement est deja lie -- plus
-      // fiable que re-lire la session. Le backstop reste customer.subscription.created (plus bas).
-      if (!subscriptionId && typeof session.customer === "string") {
+      // Filet de securite : avec un essai gratuit + payment_method_collection "if_required",
+      // session.subscription arrive parfois vide dans l'event. On re-recupere alors la
+      // session avec la subscription expandee, pour ne jamais stocker subscribed=true sans
+      // son subscription_id -- sinon le chemin de secours du webhook d'annulation
+      // (update ... where subscription_id = ...) ne peut jamais retrouver le profil.
+      if (!subscriptionId) {
         try {
-          const subs = await stripe.subscriptions.list({
-            customer: session.customer,
-            status: "all",
-            limit: 1,
+          const fullSession = await stripe.checkout.sessions.retrieve(session.id, {
+            expand: ["subscription"],
           });
-          subscriptionId = subs.data[0]?.id ?? null;
-        } catch (listError) {
+          subscriptionId =
+            typeof fullSession.subscription === "string"
+              ? fullSession.subscription
+              : fullSession.subscription?.id ?? null;
+        } catch (retrieveError) {
           console.error(
-            "Webhook Stripe : echec liste subscriptions pour le client",
-            session.customer,
-            listError,
+            "Webhook Stripe : echec recuperation de la subscription pour la session",
+            session.id,
+            retrieveError,
           );
         }
       }
 
-      // On active toujours l'abonnement, mais on n'ecrit subscription_id QUE si on le
-      // connait : sinon on ecraserait avec null une valeur deja posee par
-      // customer.subscription.created (les events peuvent arriver dans n'importe quel ordre).
-      const profileFields: { id: string; subscribed: boolean; subscription_id?: string } = {
-        id: userId,
-        subscribed: true,
-      };
-      if (subscriptionId) {
-        profileFields.subscription_id = subscriptionId;
-      } else {
+      if (!subscriptionId) {
         console.error(
-          "Webhook Stripe : subscription_id introuvable au checkout pour la session",
+          "Webhook Stripe : subscription_id introuvable pour la session",
           session.id,
         );
       }
@@ -98,7 +91,10 @@ export async function POST(request: NextRequest) {
       // client aurait paye sans etre active.
       const { error } = await supabaseAdmin
         .from("profiles")
-        .upsert(profileFields, { onConflict: "id" });
+        .upsert(
+          { id: userId, subscribed: true, subscription_id: subscriptionId },
+          { onConflict: "id" },
+        );
 
       if (error) {
         console.error("Webhook Stripe : erreur Supabase profiles", error);
@@ -106,12 +102,9 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Cycle de vie de l'abonnement. "created" pose subscription_id de facon fiable des la
-    // creation (l'event porte subscription.id + metadata.user_id, sans course de consistance
-    // comme au checkout). "updated"/"deleted" gardent subscribed aligne sur la verite Stripe
-    // (annulation, impaye/past_due, fin d'essai non payee, etc.).
+    // Cycle de vie : annulation, impaye (past_due), fin d'essai non payee, etc.
+    // Sans ca, subscribed reste true a vie et l'etat diverge de la verite Stripe.
     if (
-      event.type === "customer.subscription.created" ||
       event.type === "customer.subscription.updated" ||
       event.type === "customer.subscription.deleted"
     ) {
