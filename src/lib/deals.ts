@@ -25,6 +25,9 @@ export type DealFormInput = {
   amount: string;
   contactId: string;
   stage: DealStage;
+  // Note de contexte libre (optionnelle) : le "pourquoi" d'une relance sur ce deal,
+  // un detail a retenir. Optionnelle pour ne casser aucun appelant existant.
+  contextNote?: string;
 };
 
 export type DealResult = {
@@ -90,6 +93,7 @@ export async function addDeal(input: DealFormInput): Promise<DealResult> {
     amount,
     contact_id: input.contactId || null,
     stage: input.stage,
+    context_note: input.contextNote?.trim() || null,
     updated_at: new Date().toISOString(),
     // last_contacted_at : laisse le DEFAULT NOW() de la base le renseigner,
     // pour ne pas dependre de l'ordre code/migration.
@@ -137,6 +141,7 @@ export async function updateDeal(dealId: string, input: DealFormInput): Promise<
       amount,
       contact_id: input.contactId || null,
       stage: input.stage,
+      context_note: input.contextNote?.trim() || null,
     })
     .eq("id", dealId)
     .eq("user_id", user.id)

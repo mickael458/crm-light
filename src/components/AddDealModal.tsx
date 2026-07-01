@@ -23,6 +23,7 @@ export function AddDealModal({
   const [amount, setAmount] = useState("");
   const [contactId, setContactId] = useState("");
   const [stage, setStage] = useState<DealStage>(initialStage);
+  const [contextNote, setContextNote] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -36,7 +37,7 @@ export function AddDealModal({
     }
 
     setIsSubmitting(true);
-    const result = await addDeal({ title, amount, contactId, stage });
+    const result = await addDeal({ title, amount, contactId, stage, contextNote });
     setIsSubmitting(false);
 
     if (result.error || !result.deal) {
@@ -108,6 +109,17 @@ export function AddDealModal({
                 </option>
               ))}
             </select>
+          </label>
+
+          <label className="space-y-2">
+            <span className="text-sm font-medium text-zinc-800">Note de contexte</span>
+            <textarea
+              value={contextNote}
+              onChange={(event) => setContextNote(event.target.value)}
+              rows={3}
+              className="w-full resize-y rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-950 outline-none focus:border-zinc-900 focus:ring-2 focus:ring-zinc-200"
+              placeholder="Ex : attend son budget Q3, relancer après le salon…"
+            />
           </label>
         </div>
 

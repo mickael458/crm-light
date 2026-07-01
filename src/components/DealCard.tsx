@@ -51,6 +51,14 @@ export function DealCard({ deal, followUpDelayDays, onEdit, onMarkContacted }: D
           {getStageLabel(stage)}
         </span>
       </div>
+      {deal.context_note ? (
+        <p
+          className="mt-2 truncate text-xs italic text-zinc-500"
+          title={deal.context_note}
+        >
+          {deal.context_note}
+        </p>
+      ) : null}
       <div className="mt-4 flex items-center justify-between gap-3 text-sm">
         <span className="font-semibold text-zinc-950">
           {formatCurrency(Number(deal.amount ?? 0))}
