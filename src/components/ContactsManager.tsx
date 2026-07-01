@@ -27,6 +27,7 @@ export function ContactsManager({ initialContacts }: ContactsManagerProps) {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [status, setStatus] = useState<ContactStatus>("froid");
+  const [contextNote, setContextNote] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -57,7 +58,7 @@ export function ContactsManager({ initialContacts }: ContactsManagerProps) {
   const normalizedSearch = search.trim().toLowerCase();
   const filteredContacts = normalizedSearch
     ? contacts.filter((contact) =>
-        [contact.name, contact.company, contact.email, contact.phone].some((field) =>
+        [contact.name, contact.company, contact.email, contact.phone, contact.context_note].some((field) =>
           (field ?? "").toLowerCase().includes(normalizedSearch),
         ),
       )
@@ -90,7 +91,7 @@ export function ContactsManager({ initialContacts }: ContactsManagerProps) {
     }
 
     setIsSubmitting(true);
-    const result = await addContact({ name, company, email, phone, status });
+    const result = await addContact({ name, company, email, phone, status, contextNote });
     setIsSubmitting(false);
 
     if (result.error || !result.contact) {
@@ -104,6 +105,7 @@ export function ContactsManager({ initialContacts }: ContactsManagerProps) {
     setEmail("");
     setPhone("");
     setStatus("froid");
+    setContextNote("");
   }
 
   return (
@@ -179,6 +181,17 @@ export function ContactsManager({ initialContacts }: ContactsManagerProps) {
               ))}
             </select>
           </label>
+
+          <label className="space-y-2">
+            <span className="text-sm font-medium text-zinc-800">Note de contexte</span>
+            <textarea
+              value={contextNote}
+              onChange={(event) => setContextNote(event.target.value)}
+              rows={3}
+              className="w-full resize-y rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-950 outline-none focus:border-zinc-900 focus:ring-2 focus:ring-zinc-200"
+              placeholder="Ex : rencontré au salon, rappeler après ses congés, budget serré…"
+            />
+          </label>
         </div>
 
         {error ? (
@@ -234,8 +247,16 @@ export function ContactsManager({ initialContacts }: ContactsManagerProps) {
 
                 return (
                   <tr key={contact.id} className="text-zinc-700">
-                    <td className="whitespace-nowrap px-5 py-4 font-medium text-zinc-950">
-                      {contact.name}
+                    <td className="px-5 py-4 align-top font-medium text-zinc-950">
+                      <div className="whitespace-nowrap">{contact.name}</div>
+                      {contact.context_note ? (
+                        <p
+                          className="mt-1 max-w-[240px] truncate text-xs font-normal text-zinc-500"
+                          title={contact.context_note}
+                        >
+                          {contact.context_note}
+                        </p>
+                      ) : null}
                     </td>
                     <td className="whitespace-nowrap px-5 py-4">
                       {contact.company ?? "-"}

@@ -58,6 +58,11 @@ UPDATE public.deals SET updated_at = COALESCE(updated_at, created_at, NOW()) WHE
 ALTER TABLE public.deals ADD COLUMN IF NOT EXISTS last_contacted_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
 UPDATE public.deals SET last_contacted_at = COALESCE(last_contacted_at, updated_at, created_at, NOW()) WHERE last_contacted_at IS NULL;
 
+-- Note de contexte libre sur un deal / un contact (le "pourquoi" d'une relance,
+-- un détail à ne pas oublier). Colonnes ajoutées en base le 2026-07-01.
+ALTER TABLE public.deals ADD COLUMN IF NOT EXISTS context_note TEXT;
+ALTER TABLE public.contacts ADD COLUMN IF NOT EXISTS context_note TEXT;
+
 DROP POLICY IF EXISTS "Users see own contacts" ON public.contacts;
 CREATE POLICY "Users see own contacts" ON public.contacts
 FOR ALL USING (auth.uid() = user_id)

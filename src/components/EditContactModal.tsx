@@ -20,6 +20,7 @@ export function EditContactModal({ contact, onClose, onUpdated }: EditContactMod
   const [email, setEmail] = useState(contact.email ?? "");
   const [phone, setPhone] = useState(contact.phone ?? "");
   const [status, setStatus] = useState<ContactStatus>(contact.status ?? "froid");
+  const [contextNote, setContextNote] = useState(contact.context_note ?? "");
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -33,7 +34,7 @@ export function EditContactModal({ contact, onClose, onUpdated }: EditContactMod
     }
 
     setIsSaving(true);
-    const result = await updateContact(contact.id, { name, company, email, phone, status });
+    const result = await updateContact(contact.id, { name, company, email, phone, status, contextNote });
     setIsSaving(false);
 
     if (result.error || !result.contact) {
@@ -107,6 +108,17 @@ export function EditContactModal({ contact, onClose, onUpdated }: EditContactMod
                 </option>
               ))}
             </select>
+          </label>
+
+          <label className="space-y-2">
+            <span className="text-sm font-medium text-zinc-800">Note de contexte</span>
+            <textarea
+              value={contextNote}
+              onChange={(event) => setContextNote(event.target.value)}
+              rows={3}
+              className="w-full resize-y rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-950 outline-none focus:border-zinc-900 focus:ring-2 focus:ring-zinc-200"
+              placeholder="Ex : rencontré au salon, rappeler après ses congés, budget serré…"
+            />
           </label>
         </div>
 

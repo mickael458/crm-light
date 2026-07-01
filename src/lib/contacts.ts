@@ -7,6 +7,9 @@ export type ContactFormInput = {
   email: string;
   phone: string;
   status: ContactStatus;
+  // Note de contexte libre (optionnelle) : le "pourquoi" d'une relance, un detail
+  // a ne pas oublier. Absente de l'import CSV, d'ou l'optionnalite.
+  contextNote?: string;
 };
 
 export type ContactResult = {
@@ -44,6 +47,7 @@ export async function updateContact(
     email: input.email.trim() || null,
     phone: input.phone.trim() || null,
     status: input.status,
+    context_note: input.contextNote?.trim() || null,
   };
 
   const { data, error } = await supabase
@@ -167,6 +171,7 @@ export async function addContact(input: ContactFormInput): Promise<ContactResult
     email: input.email.trim() || null,
     phone: input.phone.trim() || null,
     status: input.status,
+    context_note: input.contextNote?.trim() || null,
   };
 
   const { data, error } = await supabase
