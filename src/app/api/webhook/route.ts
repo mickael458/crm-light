@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     if (event.type === "checkout.session.completed") {
       const session = event.data.object;
       const userId = session.metadata?.user_id;
-      const subscriptionId =
+      let subscriptionId =
         typeof session.subscription === "string"
           ? session.subscription
           : session.subscription?.id ?? null;
@@ -54,6 +54,36 @@ export async function POST(request: NextRequest) {
       if (!userId) {
         console.error("Webhook Stripe : user_id manquant dans session.metadata.");
         return new Response("OK", { status: 200 });
+      }
+
+      // Filet de securite : avec un essai gratuit + payment_method_collection "if_required",
+      // session.subscription arrive parfois vide dans l'event. On re-recupere alors la
+      // session avec la subscription expandee, pour ne jamais stocker subscribed=true sans
+      // son subscription_id -- sinon le chemin de secours du webhook d'annulation
+      // (update ... where subscription_id = ...) ne peut jamais retrouver le profil.
+      if (!subscriptionId) {
+        try {
+          const fullSession = await stripe.checkout.sessions.retrieve(session.id, {
+            expand: ["subscription"],
+          });
+          subscriptionId =
+            typeof fullSession.subscription === "string"
+              ? fullSession.subscription
+              : fullSession.subscription?.id ?? null;
+        } catch (retrieveError) {
+          console.error(
+            "Webhook Stripe : echec recuperation de la subscription pour la session",
+            session.id,
+            retrieveError,
+          );
+        }
+      }
+
+      if (!subscriptionId) {
+        console.error(
+          "Webhook Stripe : subscription_id introuvable pour la session",
+          session.id,
+        );
       }
 
       // upsert et non update : si la ligne profiles n'existe pas (trigger absent,
