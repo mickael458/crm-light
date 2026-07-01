@@ -19,6 +19,7 @@ export type DealFormInput = {
   amount: string;
   contactId: string;
   stage: DealStage;
+  contextNote: string;
 };
 
 export type DealResult = {
@@ -54,6 +55,7 @@ export async function addDeal(input: DealFormInput): Promise<DealResult> {
     amount,
     contact_id: input.contactId || null,
     stage: input.stage,
+    context_note: input.contextNote.trim() || null,
     updated_at: new Date().toISOString(),
   };
 
@@ -99,6 +101,7 @@ export async function updateDeal(dealId: string, input: DealFormInput): Promise<
       amount,
       contact_id: input.contactId || null,
       stage: input.stage,
+      context_note: input.contextNote.trim() || null,
     })
     .eq("id", dealId)
     .eq("user_id", user.id)

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { BillingPortalButton } from "@/components/BillingPortalButton";
 import { SettingsForm } from "@/components/SettingsForm";
 import { fetchCurrentUserProfile } from "@/lib/profiles-server";
 import { getCurrentUser } from "@/lib/session";
@@ -49,6 +50,19 @@ export default async function SettingsPage() {
           initialChannels={profile.onboarding_channels ?? ["email"]}
           initialSummary={profile.onboarding_summary ?? "matin"}
         />
+
+        {profile.subscribed && profile.subscription_id ? (
+          <section className="flex flex-col gap-3 rounded-lg border border-zinc-200 bg-white p-6 shadow-sm">
+            <div>
+              <h2 className="text-lg font-semibold text-zinc-950">Abonnement</h2>
+              <p className="mt-1 text-sm leading-6 text-zinc-600">
+                Gère ton moyen de paiement, tes factures ou annule ton abonnement.
+                L&apos;accès reste actif jusqu&apos;à la fin de la période en cours.
+              </p>
+            </div>
+            <BillingPortalButton />
+          </section>
+        ) : null}
       </section>
     </main>
   );

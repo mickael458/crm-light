@@ -70,6 +70,43 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Révoque (ou rétablit) l'accès quand l'abonnement change d'état ou prend fin :
+    // annulation, fin d'essai sans paiement, impayé... Sans ça, `subscribed` resterait
+    // à true indéfiniment et l'accès ne serait jamais coupé.
+    if (
+      event.type === "customer.subscription.updated" ||
+      event.type === "customer.subscription.deleted"
+    ) {
+      const subscription = event.data.object;
+      const userId = subscription.metadata?.user_id;
+
+      if (!userId) {
+        console.error(
+          "Webhook Stripe : user_id manquant dans subscription.metadata.",
+        );
+        return new Response("OK", { status: 200 });
+      }
+
+      // L'accès est maintenu tant que l'abonnement est actif, en essai, ou en
+      // période de grâce (past_due). Tout autre état (canceled, unpaid, etc.) coupe l'accès.
+      // Une suppression d'abonnement (deleted) révoque toujours l'accès.
+      const accessStatuses = ["active", "trialing", "past_due"];
+      const hasAccess =
+        event.type === "customer.subscription.updated" &&
+        accessStatuses.includes(subscription.status);
+
+      const supabaseAdmin = createSupabaseAdmin();
+      const { error } = await supabaseAdmin
+        .from("profiles")
+        .update({ subscribed: hasAccess })
+        .eq("id", userId);
+
+      if (error) {
+        console.error("Webhook Stripe : erreur Supabase profiles", error);
+        return Response.json({ error: error.message }, { status: 500 });
+      }
+    }
+
     return new Response("OK", { status: 200 });
   } catch (error) {
     console.error("Webhook Stripe : erreur complète", error);

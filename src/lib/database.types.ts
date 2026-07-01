@@ -25,6 +25,7 @@ export type Database = {
           email: string | null;
           phone: string | null;
           status: ContactStatus | null;
+          context_note: string | null;
           created_at: string | null;
         };
         Insert: {
@@ -35,6 +36,7 @@ export type Database = {
           email?: string | null;
           phone?: string | null;
           status?: ContactStatus | null;
+          context_note?: string | null;
           created_at?: string | null;
         };
         Update: {
@@ -45,6 +47,7 @@ export type Database = {
           email?: string | null;
           phone?: string | null;
           status?: ContactStatus | null;
+          context_note?: string | null;
           created_at?: string | null;
         };
         Relationships: [];
@@ -57,6 +60,7 @@ export type Database = {
           title: string;
           amount: number | null;
           stage: DealStage | null;
+          context_note: string | null;
           created_at: string | null;
           updated_at: string | null;
         };
@@ -67,6 +71,7 @@ export type Database = {
           title: string;
           amount?: number | null;
           stage?: DealStage | null;
+          context_note?: string | null;
           created_at?: string | null;
           updated_at?: string | null;
         };
@@ -77,6 +82,7 @@ export type Database = {
           title?: string;
           amount?: number | null;
           stage?: DealStage | null;
+          context_note?: string | null;
           created_at?: string | null;
           updated_at?: string | null;
         };

@@ -7,6 +7,7 @@ export type ContactFormInput = {
   email: string;
   phone: string;
   status: ContactStatus;
+  contextNote?: string;
 };
 
 export type ContactResult = {
@@ -44,6 +45,7 @@ export async function updateContact(
     email: input.email.trim() || null,
     phone: input.phone.trim() || null,
     status: input.status,
+    context_note: input.contextNote?.trim() || null,
   };
 
   const { data, error } = await supabase
@@ -119,6 +121,7 @@ export async function addContactsBulk(
     email: input.email.trim() || null,
     phone: input.phone.trim() || null,
     status: input.status,
+    context_note: input.contextNote?.trim() || null,
   }));
 
   const { data, error } = await supabase
@@ -156,6 +159,7 @@ export async function addContact(input: ContactFormInput): Promise<ContactResult
     email: input.email.trim() || null,
     phone: input.phone.trim() || null,
     status: input.status,
+    context_note: input.contextNote?.trim() || null,
   };
 
   const { data, error } = await supabase
