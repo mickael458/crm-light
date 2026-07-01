@@ -184,9 +184,9 @@ export default function Home() {
 
       {/* HERO */}
       <section className="lp-hero">
-        <div className="lp-hero-badge"><span></span> CRM de relance · Pour consultants, coachs et freelances</div>
+        <div className="lp-hero-badge"><span></span> CRM de relance · Pour freelances &amp; coachs indépendants</div>
         <h1 className="lp-h1">Ne ratez plus jamais<br />une relance ou un devis</h1>
-        <p className="lp-hero-sub">40% des indépendants perdent des contrats par oubli de relance. crm-light vous dit exactement qui relancer aujourd&apos;hui, en 30 secondes.</p>
+        <p className="lp-hero-sub">Votre tableur, vos post-its et votre mémoire ne vous disent pas <em>qui relancer aujourd&apos;hui</em>. crm-light, oui — en 30 secondes chaque matin, sans usine à gaz.</p>
         <div className="lp-hero-cta-group">
           <Link href="/register" className="lp-btn-big">
             <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
@@ -297,7 +297,7 @@ export default function Home() {
       {/* COMPARE */}
       <section className="lp-compare">
         <div className="lp-compare-inner">
-          <div className="lp-section-label" style={{textAlign:"center"}}>Pourquoi pas HubSpot ?</div>
+          <div className="lp-section-label" style={{textAlign:"center"}}>Pourquoi pas un tableur ou Notion ?</div>
           <div className="lp-section-title" style={{textAlign:"center"}}>Fait pour ne plus perdre de contrats par oubli</div>
           <div className="lp-compare-grid">
             <div className="lp-compare-col bad">
