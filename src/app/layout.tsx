@@ -14,10 +14,40 @@ const appDisplay = Geist({
   subsets: ["latin"],
 });
 
+const siteName = "crm-light";
+const siteTitle = "crm-light — ne ratez plus une relance";
+const siteDescription =
+  "L'outil de relance des indépendants français : sachez chaque jour qui relancer, sans jamais passer pour un commercial lourd.";
+const siteUrl = process.env.NEXT_PUBLIC_URL ?? "https://crm-light.com";
+
 export const metadata: Metadata = {
-  title: "crm-light — ne ratez plus une relance",
-  description:
-    "L'outil de relance des indépendants français : sachez chaque jour qui relancer, sans jamais passer pour un commercial lourd.",
+  metadataBase: new URL(siteUrl),
+  title: siteTitle,
+  description: siteDescription,
+  applicationName: siteName,
+  keywords: [
+    "CRM",
+    "relance client",
+    "indépendant",
+    "freelance",
+    "consultant",
+    "pipeline commercial",
+    "devis",
+  ],
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    locale: "fr_FR",
+    url: siteUrl,
+    siteName,
+    title: siteTitle,
+    description: siteDescription,
+  },
+  twitter: {
+    card: "summary",
+    title: siteTitle,
+    description: siteDescription,
+  },
 };
 
 export default async function RootLayout({
