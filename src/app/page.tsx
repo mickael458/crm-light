@@ -316,28 +316,20 @@ export default function Home() {
         </div>
       </section>
 
-      {/* TESTIMONIALS */}
+      {/* ACCÈS ANTICIPÉ — honnête : pas de faux témoignages tant qu'il n'y a pas de vrais clients */}
       <section className="lp-testimonials">
-        <div className="lp-testimonials-inner">
-          <div className="lp-section-label">Témoignages</div>
-          <div className="lp-section-title">Ce que disent nos bêta-testeurs</div>
-          <div className="lp-testimonials-grid">
-            <div className="lp-testimonial-card">
-              <div className="lp-testimonial-stars">★★★★★</div>
-              <p className="lp-testimonial-text">&ldquo;J&apos;avais essayé HubSpot mais j&apos;abandonnais après 3 jours. Là, j&apos;ai mes 20 prospects configurés en 20 minutes. C&apos;est exactement ce qu&apos;il me fallait.&rdquo;</p>
-              <div className="lp-testimonial-author"><div className="lp-testimonial-av lp-av-b">SB</div><div><div className="lp-testimonial-name">Sylvain B.</div><div className="lp-testimonial-role">Consultant RH indépendant</div></div></div>
-            </div>
-            <div className="lp-testimonial-card">
-              <div className="lp-testimonial-stars">★★★★★</div>
-              <p className="lp-testimonial-text">&ldquo;Les relances automatiques m&apos;ont sauvé deux contrats ce mois. Je n&apos;y pensais plus et l&apos;outil m&apos;a rappelé au bon moment.&rdquo;</p>
-              <div className="lp-testimonial-author"><div className="lp-testimonial-av lp-av-g">MC</div><div><div className="lp-testimonial-name">Marie C.</div><div className="lp-testimonial-role">Coach de vie certifiée</div></div></div>
-            </div>
-            <div className="lp-testimonial-card">
-              <div className="lp-testimonial-stars">★★★★☆</div>
-              <p className="lp-testimonial-text">&ldquo;Simple, rapide, efficace. Je l&apos;utilise depuis mon téléphone entre deux chantiers. Enfin un CRM qui respecte mon temps.&rdquo;</p>
-              <div className="lp-testimonial-author"><div className="lp-testimonial-av lp-av-p">PT</div><div><div className="lp-testimonial-name">Patrick T.</div><div className="lp-testimonial-role">Artisan plombier chauffagiste</div></div></div>
-            </div>
-          </div>
+        <div className="lp-testimonials-inner" style={{ textAlign: "center", maxWidth: "620px" }}>
+          <div className="lp-section-label">Accès anticipé</div>
+          <div className="lp-section-title">Les tout premiers indépendants,<br />c&apos;est maintenant</div>
+          <p className="lp-section-sub" style={{ margin: "0 auto 28px" }}>
+            Soyons clairs : pas de faux témoignages ici. crm-light démarre tout juste, et tu
+            peux faire partie des premiers à l&apos;utiliser — ton retour oriente directement
+            ce qu&apos;on construit ensuite.
+          </p>
+          <Link href="/register" className="lp-btn-big" style={{ margin: "0 auto" }}>
+            <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            Rejoindre la bêta
+          </Link>
         </div>
       </section>
 

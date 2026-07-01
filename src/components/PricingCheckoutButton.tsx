@@ -55,8 +55,11 @@ export function PricingCheckoutButton() {
         disabled={isLoading}
         className="h-12 w-full rounded-md bg-zinc-950 px-5 text-sm font-semibold text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:bg-zinc-400"
       >
-        {isLoading ? "Redirection..." : <>Commencer &mdash; 9&euro;/mois</>}
+        {isLoading ? "Redirection..." : "Démarrer l'essai gratuit"}
       </button>
+      <p className="text-center text-xs text-zinc-500">
+        14 jours sans carte, puis 9 €/mois — annulable à tout moment.
+      </p>
       {error ? (
         <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
           {error}

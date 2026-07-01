@@ -5,7 +5,7 @@ import type { DealWithContact, OnboardingGoal } from "@/lib/database.types";
 import { visiblePipelineStages } from "@/lib/deals";
 import { calculatePipelineStats, fetchCurrentUserDeals } from "@/lib/deals-server";
 import {
-  getDaysSinceLastUpdate,
+  getDaysSinceLastContact,
   getDealHeat,
   getOverdueQuoteDeals,
   normalizeDelayDays,
@@ -38,10 +38,6 @@ export default async function DashboardPage() {
   }
 
   const isSubscribed = Boolean(profile?.subscribed);
-
-  if (!isSubscribed) {
-    redirect("/pricing");
-  }
 
   const followUpDelayDays = normalizeDelayDays(profile?.onboarding_delay);
   const stats = calculatePipelineStats(deals);
@@ -93,9 +89,23 @@ export default async function DashboardPage() {
           </Link>
         ) : null}
 
-        <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-medium text-emerald-800">
-          Plan Solo actif
-        </div>
+        {isSubscribed ? (
+          <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-medium text-emerald-800">
+            Plan Solo actif
+          </div>
+        ) : (
+          <Link
+            href="/pricing"
+            className="flex flex-col gap-1 rounded-lg border border-blue-200 bg-blue-50 px-5 py-4 text-sm transition hover:bg-blue-100 sm:flex-row sm:items-center sm:justify-between"
+          >
+            <span className="font-medium text-blue-900">
+              Tu découvres CRM Light en accès libre — déjà configuré pour toi.
+            </span>
+            <span className="shrink-0 font-semibold text-blue-700 underline underline-offset-4">
+              Activer le plan Solo · 14 j gratuits, sans carte
+            </span>
+          </Link>
+        )}
 
         <div className="grid gap-4 md:grid-cols-[1.2fr_0.8fr]">
           <article className="rounded-lg border border-zinc-200 bg-white p-5 shadow-sm">
@@ -241,7 +251,7 @@ function FocusList({ deals }: { deals: DealWithContact[] }) {
               — {deal.contacts?.name ?? "Contact non renseigné"}
             </span>
           </span>
-          <span className="shrink-0 text-zinc-500">{getDaysSinceLastUpdate(deal)} j</span>
+          <span className="shrink-0 text-zinc-500">{getDaysSinceLastContact(deal)} j</span>
         </li>
       ))}
     </ul>

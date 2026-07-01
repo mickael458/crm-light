@@ -4,6 +4,7 @@ import { FormEvent, useState } from "react";
 import type { Contact, ContactStatus } from "@/lib/database.types";
 import { updateContact } from "@/lib/contacts";
 import { getStatusLabel } from "@/lib/format";
+import { Modal } from "@/components/Modal";
 
 const statusOptions: ContactStatus[] = ["chaud", "tiede", "froid"];
 
@@ -19,6 +20,7 @@ export function EditContactModal({ contact, onClose, onUpdated }: EditContactMod
   const [email, setEmail] = useState(contact.email ?? "");
   const [phone, setPhone] = useState(contact.phone ?? "");
   const [status, setStatus] = useState<ContactStatus>(contact.status ?? "froid");
+  const [contextNote, setContextNote] = useState(contact.context_note ?? "");
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -32,7 +34,7 @@ export function EditContactModal({ contact, onClose, onUpdated }: EditContactMod
     }
 
     setIsSaving(true);
-    const result = await updateContact(contact.id, { name, company, email, phone, status });
+    const result = await updateContact(contact.id, { name, company, email, phone, status, contextNote });
     setIsSaving(false);
 
     if (result.error || !result.contact) {
@@ -45,27 +47,12 @@ export function EditContactModal({ contact, onClose, onUpdated }: EditContactMod
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/30 px-4 py-6 sm:items-center">
-      <form
-        onSubmit={handleSubmit}
-        className="w-full max-w-lg rounded-lg bg-white p-6 shadow-xl"
-      >
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <h2 className="text-xl font-semibold text-zinc-950">Modifier le contact</h2>
-            <p className="mt-1 text-sm text-zinc-600">
-              Mets à jour les informations de ce contact.
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-md px-2 py-1 text-sm text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-900"
-          >
-            Fermer
-          </button>
-        </div>
-
+    <Modal
+      title="Modifier le contact"
+      description="Mets à jour les informations de ce contact."
+      onClose={onClose}
+    >
+      <form onSubmit={handleSubmit}>
         <div className="mt-6 grid gap-4">
           <label className="space-y-2">
             <span className="text-sm font-medium text-zinc-800">Nom</span>
@@ -122,6 +109,17 @@ export function EditContactModal({ contact, onClose, onUpdated }: EditContactMod
               ))}
             </select>
           </label>
+
+          <label className="space-y-2">
+            <span className="text-sm font-medium text-zinc-800">Note de contexte</span>
+            <textarea
+              value={contextNote}
+              onChange={(event) => setContextNote(event.target.value)}
+              rows={3}
+              className="w-full resize-y rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-950 outline-none focus:border-zinc-900 focus:ring-2 focus:ring-zinc-200"
+              placeholder="Ex : rencontré au salon, rappeler après ses congés, budget serré…"
+            />
+          </label>
         </div>
 
         {error ? (
@@ -145,6 +143,6 @@ export function EditContactModal({ contact, onClose, onUpdated }: EditContactMod
           </button>
         </div>
       </form>
-    </div>
+    </Modal>
   );
 }

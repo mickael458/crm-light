@@ -89,7 +89,12 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ url: session.url });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Erreur Stripe inconnue.";
-    return NextResponse.json({ error: message }, { status: 500 });
+    // On logge le detail cote serveur mais on ne renvoie pas l'exception brute Stripe
+    // au client (messages anglais cryptiques qui sapent la confiance d'un client FR).
+    console.error("create-checkout : erreur Stripe", error);
+    return NextResponse.json(
+      { error: "Impossible de lancer le paiement pour l'instant. Réessaie dans un moment." },
+      { status: 500 },
+    );
   }
 }

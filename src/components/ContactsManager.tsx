@@ -1,8 +1,9 @@
 ﻿"use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useRef, useState } from "react";
 import type { Contact, ContactStatus } from "@/lib/database.types";
 import { addContact, deleteContact } from "@/lib/contacts";
+import { countDealsForContact } from "@/lib/deals";
 import { ContactImport } from "@/components/ContactImport";
 import { EditContactModal } from "@/components/EditContactModal";
 import { formatDate, getStatusLabel } from "@/lib/format";
@@ -26,17 +27,38 @@ export function ContactsManager({ initialContacts }: ContactsManagerProps) {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [status, setStatus] = useState<ContactStatus>("froid");
+  const [contextNote, setContextNote] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [confirmingDeleteId, setConfirmingDeleteId] = useState<string | null>(null);
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
   const [search, setSearch] = useState("");
+  const [linkedDealCount, setLinkedDealCount] = useState<number | null>(null);
+  const confirmingRef = useRef<string | null>(null);
+
+  async function startDeleteConfirm(contact: Contact) {
+    setError(null);
+    setLinkedDealCount(null);
+    setConfirmingDeleteId(contact.id);
+    confirmingRef.current = contact.id;
+    const count = await countDealsForContact(contact.id);
+    // Ne pose le compte que s'il concerne toujours le contact en cours de confirmation.
+    if (confirmingRef.current === contact.id) {
+      setLinkedDealCount(count);
+    }
+  }
+
+  function cancelDeleteConfirm() {
+    confirmingRef.current = null;
+    setConfirmingDeleteId(null);
+    setLinkedDealCount(null);
+  }
 
   const normalizedSearch = search.trim().toLowerCase();
   const filteredContacts = normalizedSearch
     ? contacts.filter((contact) =>
-        [contact.name, contact.company, contact.email, contact.phone].some((field) =>
+        [contact.name, contact.company, contact.email, contact.phone, contact.context_note].some((field) =>
           (field ?? "").toLowerCase().includes(normalizedSearch),
         ),
       )
@@ -48,6 +70,8 @@ export function ContactsManager({ initialContacts }: ContactsManagerProps) {
     const result = await deleteContact(id);
     setDeletingId(null);
     setConfirmingDeleteId(null);
+    confirmingRef.current = null;
+    setLinkedDealCount(null);
 
     if (result.error) {
       setError(result.error);
@@ -67,7 +91,7 @@ export function ContactsManager({ initialContacts }: ContactsManagerProps) {
     }
 
     setIsSubmitting(true);
-    const result = await addContact({ name, company, email, phone, status });
+    const result = await addContact({ name, company, email, phone, status, contextNote });
     setIsSubmitting(false);
 
     if (result.error || !result.contact) {
@@ -81,6 +105,7 @@ export function ContactsManager({ initialContacts }: ContactsManagerProps) {
     setEmail("");
     setPhone("");
     setStatus("froid");
+    setContextNote("");
   }
 
   return (
@@ -156,6 +181,17 @@ export function ContactsManager({ initialContacts }: ContactsManagerProps) {
               ))}
             </select>
           </label>
+
+          <label className="space-y-2">
+            <span className="text-sm font-medium text-zinc-800">Note de contexte</span>
+            <textarea
+              value={contextNote}
+              onChange={(event) => setContextNote(event.target.value)}
+              rows={3}
+              className="w-full resize-y rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-950 outline-none focus:border-zinc-900 focus:ring-2 focus:ring-zinc-200"
+              placeholder="Ex : rencontré au salon, rappeler après ses congés, budget serré…"
+            />
+          </label>
         </div>
 
         {error ? (
@@ -211,8 +247,16 @@ export function ContactsManager({ initialContacts }: ContactsManagerProps) {
 
                 return (
                   <tr key={contact.id} className="text-zinc-700">
-                    <td className="whitespace-nowrap px-5 py-4 font-medium text-zinc-950">
-                      {contact.name}
+                    <td className="px-5 py-4 align-top font-medium text-zinc-950">
+                      <div className="whitespace-nowrap">{contact.name}</div>
+                      {contact.context_note ? (
+                        <p
+                          className="mt-1 max-w-[240px] truncate text-xs font-normal text-zinc-500"
+                          title={contact.context_note}
+                        >
+                          {contact.context_note}
+                        </p>
+                      ) : null}
                     </td>
                     <td className="whitespace-nowrap px-5 py-4">
                       {contact.company ?? "-"}
@@ -244,6 +288,13 @@ export function ContactsManager({ initialContacts }: ContactsManagerProps) {
                         </button>
                         {confirmingDeleteId === contact.id ? (
                           <>
+                            <span className="text-xs text-zinc-500">
+                              {linkedDealCount === null
+                                ? "Vérification..."
+                                : linkedDealCount > 0
+                                  ? `${linkedDealCount} deal${linkedDealCount > 1 ? "s" : ""} détaché${linkedDealCount > 1 ? "s" : ""}`
+                                  : "Aucun deal lié"}
+                            </span>
                             <button
                               type="button"
                               onClick={() => handleDelete(contact.id)}
@@ -254,7 +305,7 @@ export function ContactsManager({ initialContacts }: ContactsManagerProps) {
                             </button>
                             <button
                               type="button"
-                              onClick={() => setConfirmingDeleteId(null)}
+                              onClick={cancelDeleteConfirm}
                               disabled={deletingId === contact.id}
                               className="text-sm font-medium text-zinc-500 transition hover:text-zinc-800 disabled:opacity-50"
                             >
@@ -264,7 +315,7 @@ export function ContactsManager({ initialContacts }: ContactsManagerProps) {
                         ) : (
                           <button
                             type="button"
-                            onClick={() => setConfirmingDeleteId(contact.id)}
+                            onClick={() => startDeleteConfirm(contact)}
                             className="text-sm font-medium text-red-600 transition hover:text-red-700"
                           >
                             Supprimer

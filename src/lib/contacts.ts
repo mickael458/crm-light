@@ -7,6 +7,9 @@ export type ContactFormInput = {
   email: string;
   phone: string;
   status: ContactStatus;
+  // Note de contexte libre (optionnelle) : le "pourquoi" d'une relance, un detail
+  // a ne pas oublier. Absente de l'import CSV, d'ou l'optionnalite.
+  contextNote?: string;
 };
 
 export type ContactResult = {
@@ -44,6 +47,7 @@ export async function updateContact(
     email: input.email.trim() || null,
     phone: input.phone.trim() || null,
     status: input.status,
+    context_note: input.contextNote?.trim() || null,
   };
 
   const { data, error } = await supabase
@@ -121,16 +125,27 @@ export async function addContactsBulk(
     status: input.status,
   }));
 
-  const { data, error } = await supabase
-    .from("contacts")
-    .insert(payload)
-    .select();
+  // Insertion par lots : un gros collage (plusieurs milliers de lignes) en un seul
+  // insert peut depasser les limites Supabase. On decoupe pour rester robuste.
+  const BATCH_SIZE = 500;
+  const inserted: Contact[] = [];
 
-  if (error) {
-    return { error: error.message };
+  for (let i = 0; i < payload.length; i += BATCH_SIZE) {
+    const { data, error } = await supabase
+      .from("contacts")
+      .insert(payload.slice(i, i + BATCH_SIZE))
+      .select();
+
+    if (error) {
+      return { error: error.message };
+    }
+
+    if (data) {
+      inserted.push(...data);
+    }
   }
 
-  return { contacts: data ?? [] };
+  return { contacts: inserted };
 }
 
 // Ajoute un contact pour l'utilisateur connecte dans Supabase.
@@ -156,6 +171,7 @@ export async function addContact(input: ContactFormInput): Promise<ContactResult
     email: input.email.trim() || null,
     phone: input.phone.trim() || null,
     status: input.status,
+    context_note: input.contextNote?.trim() || null,
   };
 
   const { data, error } = await supabase

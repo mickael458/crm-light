@@ -40,6 +40,7 @@ export function AuthForm({ mode }: AuthFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isOauthLoading, setIsOauthLoading] = useState(false);
+  const [confirmationEmail, setConfirmationEmail] = useState<string | null>(null);
 
   const isLogin = mode === "login";
 
@@ -90,8 +91,56 @@ export function AuthForm({ mode }: AuthFormProps) {
       return;
     }
 
+    // Confirmation email requise : pas de session encore, on reste sur place
+    // et on explique quoi faire plutot que de rebondir sur /login via le proxy.
+    if (result.needsConfirmation) {
+      setConfirmationEmail(email);
+      return;
+    }
+
     router.push("/onboarding");
     router.refresh();
+  }
+
+  if (confirmationEmail) {
+    return (
+      <div className="w-full max-w-md space-y-5 rounded-lg border border-zinc-200 bg-white p-6 text-center shadow-sm">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+          <svg className="h-7 w-7" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="3" y="5" width="18" height="14" rx="2" />
+            <path d="m3 7 9 6 9-6" />
+          </svg>
+        </div>
+        <div className="space-y-2">
+          <h1 className="text-2xl font-semibold text-zinc-950">Vérifie ta boîte mail</h1>
+          <p className="text-sm leading-6 text-zinc-600">
+            On vient d’envoyer un lien de confirmation à{" "}
+            <span className="font-medium text-zinc-900">{confirmationEmail}</span>.
+            Clique dessus pour activer ton compte et démarrer la configuration.
+          </p>
+        </div>
+        <p className="text-sm text-zinc-500">
+          Pas reçu ? Vérifie tes spams, ou{" "}
+          <button
+            type="button"
+            onClick={() => {
+              setConfirmationEmail(null);
+              setError(null);
+            }}
+            className="font-medium text-zinc-950 underline underline-offset-4"
+          >
+            réessaie
+          </button>
+          .
+        </p>
+        <Link
+          href="/login"
+          className="inline-block text-sm font-medium text-zinc-600 underline-offset-4 hover:underline"
+        >
+          Retour à la connexion
+        </Link>
+      </div>
+    );
   }
 
   return (

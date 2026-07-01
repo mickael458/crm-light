@@ -25,7 +25,7 @@ export async function updateProfileSettings(
   }
 
   const supabase = createClientSupabase();
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("profiles")
     .update({
       onboarding_activity: input.activity,
@@ -35,7 +35,17 @@ export async function updateProfileSettings(
       onboarding_channels: input.channels,
       onboarding_summary: input.summary,
     })
-    .eq("id", userId);
+    .eq("id", userId)
+    .select("id")
+    .maybeSingle();
 
-  return { error: error?.message };
+  if (error) {
+    return { error: error.message };
+  }
+
+  if (!data) {
+    return { error: "Profil introuvable. Reconnecte-toi puis réessaie." };
+  }
+
+  return {};
 }

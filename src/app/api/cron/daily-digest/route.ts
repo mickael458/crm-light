@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { Resend } from "resend";
 import type { DealWithContact } from "@/lib/database.types";
-import { getDaysSinceLastUpdate, isDealOverdueForFollowUp, normalizeDelayDays } from "@/lib/deal-heat";
+import { getDaysSinceLastContact, isDealOverdueForFollowUp, normalizeDelayDays } from "@/lib/deal-heat";
 import { createSupabaseAdmin } from "@/lib/supabase-admin";
 
 const pipelineUrl = "https://crm-light.com/dashboard/pipeline";
@@ -42,7 +42,7 @@ function buildDigestHtml(deals: DealWithContact[], now: Date) {
   const items = deals
     .map((deal) => {
       const contactName = deal.contacts?.name ?? "Contact non renseigné";
-      const days = getDaysSinceLastUpdate(deal, now);
+      const days = getDaysSinceLastContact(deal, now);
 
       return "<li><strong>" + escapeHtml(deal.title) + "</strong> — " + escapeHtml(contactName) + " · " + days + " jour" + (days > 1 ? "s" : "") + " sans contact</li>";
     })
